@@ -1,10 +1,54 @@
 [
-  { "name": "01-razgovor", "hash": "#s=ok&v=talk" },
-  { "name": "02-naim-idet", "hash": "#s=hire&v=talk" },
-  { "name": "03-grant", "hash": "#s=grant&v=talk" },
-  { "name": "04-ogovorki", "hash": "#s=degraded&v=talk" },
-  { "name": "05-sostav", "hash": "#s=ok&v=sostav&sel=hands" },
-  { "name": "06-sostav-ogovorki", "hash": "#s=degraded&v=sostav&sel=mem" },
-  { "name": "07-palitra", "hash": "#s=ok&v=talk&palette=1" },
-  { "name": "08-razdelenie-2560", "hash": "#s=hire&v=talk&split=1&sel=hands", "sizes": [[2560, 1440]] }
+  {
+    "name": "01-razgovor",
+    "hash": "#s=ok&v=talk"
+  },
+  {
+    "name": "02-naim-idet",
+    "hash": "#s=hire&v=talk"
+  },
+  {
+    "name": "03-grant",
+    "hash": "#s=grant&v=talk"
+  },
+  {
+    "name": "04-ogovorki",
+    "hash": "#s=degraded&v=talk"
+  },
+  {
+    "name": "05-sostav",
+    "hash": "#s=ok&v=sostav&sel=hands"
+  },
+  {
+    "name": "06-sostav-ogovorki",
+    "hash": "#s=degraded&v=sostav&sel=mem"
+  },
+  {
+    "name": "07-palitra",
+    "hash": "#s=ok&v=talk&palette=1"
+  },
+  {
+    "name": "08a-2560-bez-razdeleniya",
+    "hash": "#s=hire&v=talk",
+    "sizes": [
+      [
+        2560,
+        1440
+      ]
+    ]
+  },
+  {
+    "name": "08-razdelenie-2560",
+    "hash": "#s=hire&v=talk&split=1&sel=hands",
+    "sizes": [
+      [
+        2560,
+        1440
+      ]
+    ]
+  },
+  {
+    "name": "09-lenta-mono",
+    "hash": "#s=ok&v=talk&f=mono"
+  }
 ]

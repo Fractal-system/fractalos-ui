@@ -497,7 +497,7 @@ let UI = {view:"talk", sel:"hands", split:false, palette:false, palMode:"all", p
 /* ---------- проблемы для строки закона и сводки ---------- */
 function issues(s){
   const out = [];
-  if (s.mem.st==="down") out.push({part:"mem", level:"down", short:"Память: нет связи", long:"память лежит: нет связи с Bridge — подсказки не подаются"});
+  if (s.mem.st==="down") out.push({part:"mem", level:"down", short:"Память: нет связи", long:"память лежит: нет связи — работа идёт без памяти"});
   if (s.brain.on && s.brain.st==="warn") out.push({part:"brain", level:"warn", short:"Мозг на запасном Flash", long:"мозг работает на запасном Flash: у Grok кончилась квота"});
   return out;
 }
@@ -514,7 +514,7 @@ function renderLaw(){
   const brainCls = !s.brain.on ? "is-off" : s.brain.st==="warn" ? "is-warn" : "";
   const handsVal = !s.hands.on ? "выкл" : s.hands.busy ? "работают" : "вкл";
   const handsCls = !s.hands.on ? "is-off" : s.hands.busy ? "is-live" : "";
-  const memVal = s.mem.st==="down" ? "нет связи" : `${s.mem.atoms} атомов`;
+  const memVal = s.mem.st==="down" ? "нет связи" : "работает";
   const grantVal = s.grant.st==="open" ? `до ${s.grant.until}` : s.grant.st==="asked" ? "запрошен" : "нет";
   const lockVal = s.lock.holder ? s.lock.holder : "свободен";
 
@@ -523,7 +523,7 @@ function renderLaw(){
    + `<button class="seg ${brainCls}" data-go="brain" title="Мозг — суждение и бриф для рук">${stamp("brain")}мозг <b>${brainVal}</b></button>`
    + `<button class="seg ${handsCls}" data-go="hands" title="Руки — исполнитель по найму">${stamp("hands")}руки <b>${handsVal}</b></button>`
    + `<span class="sep"></span>`
-   + `<button class="seg ${s.mem.st==="down"?"is-down":""}" data-go="mem" title="Память: сколько помнит по проекту">${ico("atom","st-warn")}память <b>${memVal}</b></button>`
+   + `<button class="seg ${s.mem.st==="down"?"is-down":""}" data-go="mem" title="Память продукта: работает или нет">${ico("atom","st-warn")}память <b>${memVal}</b></button>`
    + `<button class="seg ${s.grant.st!=="none"?"is-warn":""}" data-go="grant" title="Грант на запись вне песочницы. Выдаёт только хозяин">${ico("key")}грант <b>${grantVal}</b></button>`
    + `<button class="seg ${s.lock.holder?"is-live":""}" data-go="lock" title="Замок писателя: пока один пишет, второй не пишет">${ico("lock")}замок <b>${esc(lockVal)}</b></button>`
    + `<span class="spacer"></span><span class="checked">политика ${s.policy} · проверено ${s.checked}</span>`;
@@ -629,7 +629,7 @@ function ledgerHTML(s){
     L.push(T.owner("13:18", "<p>Сравни две схемы хранения сессий: одна папка на сессию или один журнал на день. Код не нужен, нужен вывод.</p>"));
     L.push(T.note("13:20", "warn", "мозг: у Grok кончилась квота — вердикты даёт запасной Flash до 16:00. Хотели Grok."));
     L.push(T.mouth("13:21", "Grok", "<p>Папка на сессию выигрывает. Наймы, расписки и диффы уже живут в <code>runtime/dispatch/&lt;sid&gt;/</code>; журнал по дням пришлось бы каждый раз собирать обратно по сессиям.</p><p>Минус один — много мелких папок. Он снимается архивом всего, что старше 30 дней.</p>"));
-    L.push(T.note("14:21", "down", "память: нет связи с Bridge — подсказки не подаются. Работа идёт без памяти."));
+    L.push(T.note("14:21", "down", "память: нет связи — работа идёт без памяти."));
     L.push(T.note("14:25", "off", "руки выключены вами — найм не запустится. Демон остаётся тёплым."));
     L.push(T.owner("14:27", "<p>Сколько сейчас сессий в архиве?</p>"));
     L.push(T.mouth("14:27", "Grok", "<p>В архиве 41 сессия, последняя — 19 сентября. Активных — 14 за эту неделю.</p>"));
@@ -637,7 +637,6 @@ function ledgerHTML(s){
   }
   L.push(T.owner("14:02", "<p>Строка статуса молчит: <code>set_note</code> пишет в поле, которое никто не читает. Найми руки: выведи последние заметки в строку над композером, с тоном инфо / предупреждение / сбой.</p>"));
   L.push(T.mouth("14:02", "Grok", "<p>Понял. Это объём кода в fractalos — отдаю мозгу на бриф, потом рукам. Руки правят копию дерева, дифф придёт вам на проверку.</p>"));
-  L.push(T.note("14:02", "info", "память: 2 подсказки на этот ход — <code class=\"inl\">/why</code> покажет причины"));
   L.push(T.role("brain", "мозг", "14:03", "Grok", brief("5 пунктов · ждём 3 результата", [
     "Дать <code class=\"inl\">Rail.set_note</code> второй аргумент <code class=\"inl\">tone</code>: инфо, предупреждение, сбой; по умолчанию — инфо.",
     "Новый виджет <code class=\"inl\">StatusLine</code> над композером: последняя заметка каждого тона, не одна строка на всех.",
@@ -727,7 +726,7 @@ function nodes(s){
     {id:"dsh", lane:3, col:1, name:"dsh mux", ic:"map", st:"ok", line:"отвечает · 3 воркера тёплые", mono:"127.0.0.1:11436"},
     {id:"ollama", lane:3, col:2, name:"ollama", ic:"map", st:"ok", line:"отвечает · 12 мс", mono:"127.0.0.1:11434"},
     {id:"job", lane:3, col:3, name:"POST /job", ic:"map", st:"ok", line:"через mux · отвечает", mono:"hire/v1"},
-    {id:"mem", lane:4, col:2, name:"память", ic:"atom", st:s.mem.st, line: s.mem.st==="down"?"нет связи с Bridge":`помнит по fractalos: ${s.mem.atoms} атомов`, mono:"fractalmem"},
+    {id:"mem", lane:4, col:2, name:"память", ic:"atom", st:s.mem.st, line: s.mem.st==="down"?"нет связи":"работает", mono:"fractalmem"},
     {id:"root", lane:5, col:2, name:"корень", ic:"branch", st:"ok", line:"fractal-корень · копия и дифф", mono:"C:\\FractalOS"},
   ];
 }
@@ -800,7 +799,7 @@ function events(s){
   if (s.name==="grant") base.unshift({t:"14:41:02", tone:"warn", part:"грант", text:"руки просят запись вне песочницы: C:\\FractalOS\\config.toml"});
   if (s.name==="degraded") return [
     {t:"14:25:10", tone:"off", part:"руки", text:"руки выключены вами — найм не запустится, демон тёплый"},
-    {t:"14:21:47", tone:"down", part:"память", text:"нет связи с Bridge — подсказки не подаются, работа идёт без памяти"},
+    {t:"14:21:47", tone:"down", part:"память", text:"нет связи — работа идёт без памяти"},
     {t:"13:20:05", tone:"warn", part:"мозг", text:"у Grok кончилась квота — мозг на запасном Flash до 16:00"},
     ...base.slice(2)];
   return base;
@@ -833,10 +832,10 @@ function detail(id, s){
       d.kv = [["исполнитель","DSH · hire.py"],["модель","deepseek-v4.1-flash"],["каталоги","slim · lean · full"],["воркеры","3 тёплые · :11437–39"]];
       d.actions = [[s.hands.on?"Выключить руки":"Включить руки","hands"]]; d.ev = evOf("руки"); break;
     case "mem":
-      d.what = "Память продукта fractalmem. Помнит по проекту и подаёт рту до трёх подсказок на ход.";
-      if (s.mem.st==="down"){ d.why = "нет связи с Bridge — подсказки не подаются, работа идёт без памяти"; d.since = "с 14:21"; }
-      d.kv = [["помнит по fractalos", `${s.mem.atoms} атомов`],["подсказок на ход","до 3"],["слой","вкл · подача вкл · обучение вкл"]];
-      d.actions = [["Почему такие подсказки (/why)",""],["Переключатели памяти…",""]]; d.ev = evOf("память"); break;
+      d.what = "Память продукта fractalmem: помнит, что было по проекту, и помогает рту.";
+      if (s.mem.st==="down"){ d.why = "нет связи — работа идёт без памяти"; d.since = "с 14:21"; }
+      d.kv = [["проект","fractalos"]];
+      d.actions = [["Выключить память",""]]; d.ev = evOf("память"); break;
     case "grant":
       d.what = "Разрешение на запись вне песочницы. Это окно времени: пока оно открыто, руки пишут без вопросов. Повторная выдача начинает срок заново.";
       d.can = ["выдаёт только хозяин", "от 1 минуты до 8 часов"];
@@ -970,6 +969,7 @@ function fromHash(){
   const p = new URLSearchParams(location.hash.slice(1));
   S = scenario(p.get("s")||"ok"); UI.extra=[];
   UI.view = p.get("v")||"talk"; UI.sel = p.get("sel")||"hands"; UI.split = p.get("split")==="1";
+  document.body.dataset.ledgerFont = p.get("f")==="mono" ? "mono" : "sans";
   $("#field").value = S.draft; autosize();
   renderAll();
   if (p.get("palette")) openPalette(p.get("palette")==="project"?"project":"all");
