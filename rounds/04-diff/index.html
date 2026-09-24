@@ -1,0 +1,1746 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#151517">
+<title>FractalOS · Терминал с видами</title>
+<style>
+/* Шрифты. На Windows хозяина первым сработает Segoe UI; Open Sans — замена для снимков. */
+@font-face{font-family:"Open Sans";font-weight:400;font-display:swap;src:url("../../assets/fonts/open-sans-cyrillic-400-normal.woff2") format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Open Sans";font-weight:400;font-display:swap;src:url("../../assets/fonts/open-sans-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Open Sans";font-weight:600;font-display:swap;src:url("../../assets/fonts/open-sans-cyrillic-600-normal.woff2") format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Open Sans";font-weight:600;font-display:swap;src:url("../../assets/fonts/open-sans-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Cascadia Mono";font-weight:400;font-display:swap;src:url("../../assets/fonts/cascadia-mono-cyrillic-400-normal.woff2") format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Cascadia Mono";font-weight:400;font-display:swap;src:url("../../assets/fonts/cascadia-mono-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Cascadia Mono";font-weight:600;font-display:swap;src:url("../../assets/fonts/cascadia-mono-cyrillic-600-normal.woff2") format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Cascadia Mono";font-weight:600;font-display:swap;src:url("../../assets/fonts/cascadia-mono-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root{
+  --bg:#1C1C1C; --bg-sunk:#151517; --bg-raise:#232327; --bg-hover:#2B2B31; --bg-code:#18181B;
+  --line:#34343B; --line-ctrl:#6A6A72;
+  --fg:#E4E4E4; --fg-2:#A8A8B0; --fg-3:#8E8E97;
+  --teal:#09F5E5; --teal-dim:#3AB8AF; --teal-wash:rgba(9,245,229,.09); --ink:#151517; --select:#1F5353;
+  --gold:#E2A84A; --gold-wash:rgba(226,168,74,.08); --gold-line:rgba(226,168,74,.6);
+  --red:#E06A5E; --red-text:#EC8579; --red-wash:rgba(224,106,94,.08);
+  --green:#5BC98A;
+  --owner:#9B59D0; --owner-text:#B98AE6; --owner-wash:rgba(155,89,208,.09);
+  --c-kw:#E2A84A; --c-str:#D9A25F; --c-fn:#8FA7F0; --c-com:#6E8A7A; --c-const:#E08FC0; --c-name:#B8B8C4;
+  --font-ui:"Segoe UI Variable Text","Segoe UI","Open Sans",system-ui,sans-serif;
+  --font-mono:"Cascadia Mono",ui-monospace,Consolas,monospace;
+  --r-s:4px; --r-m:6px; --r-l:10px;
+  --t:160ms; --ease:cubic-bezier(.16,1,.3,1);
+  --gutter:96px; --col:1000px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:400 14px/1.45 var(--font-ui);-webkit-font-smoothing:antialiased;overflow:hidden}
+::selection{background:var(--select);color:#fff}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+kbd{font:400 12px var(--font-mono);color:var(--fg-3)}
+code,.mono{font-family:var(--font-mono)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ico.s12{width:12px;height:12px}
+.st-ok{color:var(--green)} .st-warn{color:var(--gold)} .st-down{color:var(--red)} .st-off{color:var(--fg-3)} .st-live{color:var(--teal)}
+*{scrollbar-width:thin;scrollbar-color:#3A3A42 transparent}
+::-webkit-scrollbar{width:10px;height:10px} ::-webkit-scrollbar-thumb{background:#3A3A42;border-radius:6px;border:2px solid var(--bg)} ::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- окно ---------- */
+.win{position:fixed;inset:0;display:grid;grid-template-rows:40px 32px minmax(0,1fr);border:1px solid var(--line);background:var(--bg)}
+
+/* заголовок */
+.titlebar{display:flex;align-items:stretch;background:var(--bg-sunk);padding-left:6px;user-select:none;min-width:0}
+.proj{display:flex;align-items:center;gap:8px;margin:5px 10px 5px 0;padding:0 10px 0 6px;border:0;border-radius:var(--r-m);background:none;min-width:0}
+.proj:hover{background:var(--bg-hover)}
+.proj img{width:20px;height:20px}
+.proj-name{font-weight:600;font-size:14px}
+.proj-path{font:400 12px var(--font-mono);color:var(--fg-3)}
+.proj .ico{color:var(--fg-3)}
+.tabs{display:flex;align-items:stretch}
+.tabgrp{display:flex;align-items:stretch}
+.tab{position:relative;display:flex;align-items:center;gap:8px;padding:0 14px;border:0;background:none;color:var(--fg-2);font-size:13px}
+.tab-side{align-self:center;display:grid;place-items:center;width:24px;height:24px;margin:0 6px 0 -10px;border:0;border-radius:6px;background:none;color:var(--fg-3)}
+.tab-side:hover{background:var(--bg-hover);color:var(--fg)}
+.tab-side[aria-pressed="true"]{background:var(--select);color:var(--teal)}
+.tab-side .ico{width:14px;height:14px}
+.help-btn{align-self:center;display:grid;place-items:center;width:28px;height:28px;margin-right:6px;border:1px solid var(--line);border-radius:var(--r-m);background:none;color:var(--fg-2);font-weight:600;font-size:14px}
+.help-btn:hover{border-color:var(--line-ctrl);color:var(--fg)}
+.tab:hover{color:var(--fg);background:var(--bg-hover)}
+.tab[aria-current="page"]{color:var(--fg)}
+.tab[aria-current="page"]::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:2px;border-radius:2px 2px 0 0;background:var(--teal)}
+.badge{font:600 12px/18px var(--font-mono);color:var(--ink);background:var(--gold);border-radius:9px;padding:0 6px}
+.drag{flex:1;min-width:24px}
+.beside{display:flex;align-items:center;gap:2px;align-self:center;margin-right:10px;padding:2px;border:1px solid var(--line);border-radius:8px}
+.beside .lbl{padding:0 6px 0 8px;font-size:12px;color:var(--fg-3)}
+.beside button{display:flex;align-items:center;gap:6px;height:24px;padding:0 9px;border:0;border-radius:6px;background:none;color:var(--fg-2);font-size:13px}
+.beside button:hover{background:var(--bg-hover);color:var(--fg)}
+.beside button[aria-pressed="true"]{background:var(--select);color:var(--fg)}
+.pal-btn{display:flex;align-items:center;gap:8px;align-self:center;height:28px;margin-right:8px;padding:0 10px;border:1px solid var(--line);border-radius:var(--r-m);background:none;color:var(--fg-2);font-size:13px}
+.pal-btn:hover{border-color:var(--line-ctrl);color:var(--fg)}
+.winctl{display:flex}
+.winctl button{width:46px;border:0;background:none;color:var(--fg-2);display:grid;place-items:center}
+.winctl button:hover{background:var(--bg-hover);color:var(--fg)}
+.winctl button.close:hover{background:#C4453A;color:#fff}
+
+/* строка закона */
+.law{display:flex;align-items:center;gap:2px;padding:0 8px;background:var(--bg-sunk);border-bottom:1px solid var(--line);font-size:13px;min-width:0;overflow:hidden}
+.seg{flex:none;display:flex;align-items:center;gap:6px;height:24px;padding:0 8px;border:0;border-radius:var(--r-m);background:none;color:var(--fg-3);white-space:nowrap}
+.seg:hover{background:var(--bg-hover)}
+.seg b{font-weight:600;color:var(--fg-2)}
+.seg.overall b{color:var(--fg)}
+.seg.is-warn b{color:var(--gold)} .seg.is-down b{color:var(--red-text)} .seg.is-live b{color:var(--teal)} .seg.is-off b{color:var(--fg-3)}
+.seg img{height:13px;width:auto;filter:grayscale(1) brightness(1.6);opacity:.7}
+.seg:not(.overall) .ico{color:var(--fg-3)}
+.seg .why{color:var(--fg-2);font-weight:400}
+.law .sep{flex:none;width:1px;height:16px;background:var(--line);margin:0 6px}
+.law .spacer{flex:1}
+.law .checked{min-width:0;overflow:hidden;text-overflow:ellipsis;font:400 12px var(--font-mono);color:var(--fg-3);padding:0 6px;white-space:nowrap}
+
+/* виды */
+.views{position:relative;display:grid;min-height:0;min-width:0}
+.views[data-split]{grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+.views[data-split]::before{content:"";grid-column:2;grid-row:1 / 3;background:var(--line)}
+.side-head{display:none}
+.views[data-split] .side-head{display:flex;grid-column:3;grid-row:1;align-items:center;gap:6px;height:36px;padding:0 8px 0 16px;background:var(--bg-sunk);border-bottom:1px solid var(--line);font-size:13px;color:var(--fg-2)}
+.side-head b{font-weight:600;color:var(--fg);margin-right:auto}
+.side-head .btn{height:26px;padding:0 8px}
+.view{display:none;min-height:0;min-width:0;grid-row:1}
+.view.is-on{display:grid;animation:viewin var(--t) var(--ease)}
+.views[data-split] .view.is-left{grid-column:1;grid-row:1 / 3} .views[data-split] .view.is-right{grid-column:3;grid-row:2}
+@keyframes viewin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ---------- вид «Разговор» ---------- */
+.v-talk{grid-template-rows:minmax(0,1fr) auto}
+.scroll{overflow:auto;min-height:0;scrollbar-gutter:stable both-edges}
+.col{max-width:var(--col);margin:0 auto;padding:0 24px}
+.ledger{list-style:none;margin:0;padding:24px 0 12px}
+.turn{display:grid;grid-template-columns:var(--gutter) minmax(0,1fr);column-gap:16px;padding:9px 0}
+.gut{text-align:right;padding-top:3px;min-width:0}
+.who{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:13px;color:var(--fg-2)}
+.who img{height:14px;width:auto}
+.who .ico{width:14px;height:14px}
+.when{display:block;font:400 12px var(--font-mono);color:var(--fg-3);margin-top:1px}
+.body{min-width:0}
+.prose{font-size:15px;line-height:1.58;max-width:70ch}
+.prose p{margin:0 0 .55em} .prose p:last-child{margin-bottom:0}
+[data-ledger-font="mono"] .prose{font:400 14px/1.6 var(--font-mono);max-width:84ch}
+[data-ledger-font="mono"] .turn.owner .body{max-width:calc(84ch + 28px)}
+.prose code,.inl{font:400 .87em var(--font-mono);background:#28282D;border-radius:var(--r-s);padding:1px 5px;color:#DCDCE2}
+.turn.owner .who{color:var(--owner-text)}
+.turn.owner .who .ico{color:var(--owner)}
+.turn.owner .body{background:var(--owner-wash);border-radius:var(--r-l);padding:9px 14px;max-width:calc(70ch + 28px)}
+.turn.note .body{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--fg-2);padding-top:3px}
+.turn.note .body .ico{margin-top:2px}
+.turn.note .who{font-weight:400;color:var(--fg-3)}
+.turn.note.is-warn .body{color:var(--fg)} .turn.note.is-down .body{color:var(--fg)}
+pre{margin:.6em 0 0;padding:12px 14px;background:var(--bg-code);border:1px solid var(--line);border-radius:8px;font:400 13px/1.55 var(--font-mono);overflow:auto;max-width:100%;color:var(--c-name)}
+.k{color:var(--c-kw)} .s{color:var(--c-str)} .f{color:var(--c-fn)} .c{color:var(--c-com);font-style:italic} .n{color:var(--c-const)}
+
+/* блоки: бриф мозга, найм рук, запрос гранта */
+.blk{border:1px solid var(--line);border-radius:var(--r-l);background:var(--bg-raise)}
+details>summary{list-style:none;cursor:pointer}
+details>summary::-webkit-details-marker{display:none}
+.sum{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:var(--r-l)}
+.sum:hover{background:var(--bg-hover)}
+.sum .ico.chev{color:var(--fg-3);transition:transform var(--t) var(--ease)}
+details[open]>.sum .ico.chev{transform:rotate(90deg)}
+.sum-title{font-weight:600}
+.meta{font-size:13px;color:var(--fg-2)}
+.brief-body{padding:4px 16px 14px 40px;font-size:14px}
+.brief-body ol{margin:0 0 10px;padding-left:18px} .brief-body li{margin:3px 0;max-width:72ch}
+.expect{margin:8px 0 0;padding:0;list-style:none;font:400 13px/1.7 var(--font-mono);color:var(--fg-2)}
+.expect li{display:flex;gap:8px;align-items:center}
+.law-note{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:13px;color:var(--fg-2)}
+.law-note .ico{color:var(--fg-3);margin-top:2px}
+
+.job-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:11px 14px 6px}
+.job-title{font-weight:600}
+.id{font:400 12px var(--font-mono);color:var(--fg-3)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--fg-2);border:1px solid var(--line);border-radius:999px;padding:0 8px;line-height:20px}
+.chip .ico{width:12px;height:12px}
+.stages{display:flex;flex-wrap:wrap;align-items:center;row-gap:4px;margin:0;padding:2px 14px 12px;list-style:none;font-size:13px}
+.stage{display:flex;align-items:center;gap:6px;color:var(--fg-2)}
+.stage+.stage::before{content:"";width:18px;height:1px;background:var(--line-ctrl);margin:0 10px 0 4px}
+.stage b{font-weight:600;color:var(--fg)}
+.stage .t{font-family:var(--font-mono);font-size:12px;color:var(--fg-3)}
+.receipt{border-top:1px solid var(--line);padding:12px 14px 12px}
+.verdict{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px}
+.verdict.ok{color:var(--green)}
+.done{margin:4px 0 0 24px;font-size:14px;color:var(--fg-2);max-width:70ch}
+.rows{margin:10px 0 0;padding:0;list-style:none;font:400 13px/1.75 var(--font-mono)}
+.rows li{display:flex;align-items:center;gap:8px;min-width:0}
+.rows .path{color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.rows .new{font-family:var(--font-ui);font-size:12px;color:var(--fg-3)}
+.plus{color:var(--green)} .minus{color:var(--red-text)}
+.rows .num{margin-left:auto;padding-left:16px;white-space:nowrap}
+.rows-h{margin:12px 0 0;font-size:13px;color:var(--fg-2)}
+.job-foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}
+.job-foot .meta{margin-left:auto}
+.trace{border-top:1px solid var(--line)}
+.trace .sum{border-radius:0 0 var(--r-l) var(--r-l);font-size:13px;color:var(--fg-2)}
+.trace-list{margin:0;padding:0 14px 12px 40px;list-style:none;font:400 13px/1.8 var(--font-mono);color:var(--fg-2)}
+.trace-list li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center}
+.trace-list .ms{color:var(--fg-3);font-size:12px}
+.live-step{color:var(--fg)}
+
+.ask{border:1px solid var(--gold-line);background:var(--gold-wash);border-radius:var(--r-l);padding:14px 16px}
+.ask h3{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:15px;font-weight:600;color:var(--fg)}
+.ask h3 .ico{color:var(--gold)}
+.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;margin:0 0 14px;font-size:14px}
+.facts dt{color:var(--fg-2)} .facts dd{margin:0;min-width:0}
+.facts .mono{font-size:13px}
+.ask-actions{display:flex;flex-wrap:wrap;gap:8px}
+
+.btn{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border:1px solid var(--line-ctrl);border-radius:var(--r-m);background:none;color:var(--fg);font-weight:600;font-size:13px;white-space:nowrap;transition:background-color var(--t),border-color var(--t)}
+.btn:hover{background:var(--bg-hover)}
+.btn kbd{font-weight:400}
+.btn-gold{border-color:var(--gold-line);color:var(--gold)} .btn-gold:hover{background:var(--gold-wash)}
+.btn-quiet{border-color:transparent;color:var(--fg-2);font-weight:400} .btn-quiet:hover{color:var(--fg)}
+.btn-danger{border-color:rgba(224,106,94,.55);color:var(--red-text)} .btn-danger:hover{background:var(--red-wash)}
+.btn[disabled]{opacity:.55;cursor:default} .btn[disabled]:hover{background:none}
+
+/* итог найма в ленте */
+.jobw{position:relative}
+.job{border:1px solid var(--line);border-radius:var(--r-l);background:var(--bg-raise)}
+.job-sum{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:10px;row-gap:3px;padding:11px 190px 11px 14px;border-radius:var(--r-l)}
+.job-sum:hover{background:var(--bg-hover)}
+.job-sum .chev{grid-row:1 / 3;margin-top:3px;color:var(--fg-3);transition:transform var(--t) var(--ease)}
+details.job[open]>.job-sum .chev{transform:rotate(90deg)}
+.job-l1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-weight:600}
+.job-l2{font-size:13px;color:var(--fg-2)}
+.job-l2 .more{color:var(--fg-2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-ctrl)}
+.job-cta{position:absolute;top:10px;right:12px}
+.job-body{border-top:1px solid var(--line)}
+.job-body .job-head{padding-top:10px}
+.w-gold{color:var(--gold)} .w-red{color:var(--red-text)} .w-teal{color:var(--teal)} .w-green{color:var(--green)}
+
+/* подсказки по окну (F1) */
+.help{position:fixed;inset:0;z-index:60}
+.help[hidden]{display:none}
+.help-scrim{position:absolute;inset:0;background:rgba(10,10,12,.55)}
+.hm-box{position:fixed;border:1.5px dashed var(--teal-dim);border-radius:8px;pointer-events:none}
+.hm-lbl{z-index:2;position:fixed;max-width:300px;padding:9px 12px;background:var(--bg-raise);border:1px solid var(--teal-dim);border-radius:8px;font-size:13px;line-height:1.45;color:var(--fg-2)}
+.hm-lbl b{display:flex;align-items:center;gap:8px;margin-bottom:2px;font-size:14px;font-weight:600;color:var(--fg)}
+.hm-tag{position:absolute;right:4px;top:4px}
+.hm-n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--teal);color:var(--ink);font:600 12px var(--font-mono)}
+.help-bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);padding:8px 14px;border:1px solid var(--line-ctrl);border-radius:8px;background:var(--bg-raise);font-size:13px;color:var(--fg-2);white-space:nowrap}
+
+/* низ: маскот, активность, композер */
+.dock{padding:0 0 12px;background:var(--bg)}
+.dock .col{display:grid;grid-template-columns:var(--gutter) minmax(0,1fr);column-gap:16px}
+.activity{display:contents}
+.mascot{grid-column:1;justify-self:end;align-self:center;position:relative;width:34px;height:34px;margin:6px 0}
+.mascot img{position:absolute;inset:1px;width:32px;height:32px}
+.mascot .m-eyes{transform-origin:50% 51.5%;animation:blink 5.4s infinite}
+.mascot .ring{position:absolute;inset:-3px;width:40px;height:40px;opacity:0}
+.mascot[data-busy] .ring{opacity:1;animation:spin 1.8s linear infinite}
+.mascot[data-busy] .m-body{animation:bob 1.2s ease-in-out infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+.act{grid-column:2;display:flex;align-items:center;gap:10px;min-width:0;font-size:13px;color:var(--fg-2)}
+.act .txt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act b{font-weight:600;color:var(--fg)}
+.act .clock{font:400 12px var(--font-mono);color:var(--fg-3)}
+.act .btn{margin-left:auto}
+.cbox{grid-column:2;background:var(--bg-raise);border:1px solid var(--line-ctrl);border-radius:12px;padding:10px 10px 8px 14px;transition:border-color var(--t)}
+.cbox:focus-within{border-color:var(--teal-dim)}
+.cbox textarea{display:block;width:100%;min-height:48px;max-height:190px;resize:none;border:0;outline:0;background:none;color:var(--fg);font:400 15px/1.5 var(--font-ui);caret-color:var(--teal);padding:2px 0}
+.cbox textarea::placeholder{color:var(--fg-3)}
+.crow{display:flex;align-items:center;gap:8px;margin-top:6px}
+.ibtn{width:32px;height:32px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:none;color:var(--fg-2)}
+.ibtn:hover{border-color:var(--line-ctrl);color:var(--fg);background:var(--bg-hover)}
+.route{flex:1;display:flex;align-items:center;gap:7px;min-width:0;font-size:13px;color:var(--fg-2);white-space:nowrap;overflow:hidden}
+.route .ico{color:var(--fg-3)}
+.route img{height:13px;width:auto}
+.route .dest{color:var(--fg);font-weight:600}
+.route .rest{overflow:hidden;text-overflow:ellipsis}
+.route.is-refuse .dest{color:var(--red-text)}
+.route.is-queue .dest{color:var(--gold)}
+.effort{display:flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:none;color:var(--fg-2);font-size:13px}
+.effort:hover{border-color:var(--line-ctrl);color:var(--fg)}
+.send{width:36px;height:36px;flex:none;display:grid;place-items:center;border:0;border-radius:9px;background:var(--teal);color:var(--ink)}
+.send .ico{width:20px;height:20px;stroke-width:2.2}
+.send:hover{background:#5BFBF1}
+.send[data-stop]{background:none;border:2px solid var(--gold);color:var(--gold)}
+.send[data-stop] .ico{width:14px;height:14px;fill:currentColor;stroke:none}
+.hints{grid-column:2;display:flex;flex-wrap:wrap;gap:4px 18px;margin:8px 0 0;padding:0 2px;font-size:12px;color:var(--fg-3)}
+.hints kbd{color:var(--fg-2)}
+
+/* ---------- вид «Состав и здоровье» ---------- */
+.v-sostav{grid-template-columns:minmax(0,1fr) 380px}
+.sv-main{overflow:auto;padding:20px 28px 28px;min-width:0}
+.sv-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}
+.sv-head h1{display:flex;align-items:center;gap:10px;margin:0;font-size:22px;font-weight:600;line-height:1.25}
+.sv-head h1 .ico{width:18px;height:18px}
+.sv-sub{margin-top:4px;font-size:13px;color:var(--fg-2)}
+.sv-head .btn{margin-left:auto}
+.map{position:relative;display:grid;grid-template-columns:88px repeat(3,minmax(0,1fr));column-gap:22px;row-gap:18px}
+.edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.edges path{fill:none;stroke:#44444C;stroke-width:1.5}
+.edges path.warn{stroke:var(--gold);stroke-dasharray:4 4;opacity:.8}
+.edges path.down{stroke:var(--red);stroke-dasharray:4 4;opacity:.85}
+.edges path.off{stroke-dasharray:2 5}
+.lane{align-self:center;font-size:13px;color:var(--fg-3)}
+.node{position:relative;z-index:1;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;align-items:start;min-height:52px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg-raise);text-align:left;transition:border-color var(--t),background-color var(--t)}
+.node:hover{background:var(--bg-hover);border-color:#4A4A54}
+.node:hover .node-mono{color:var(--fg-2)}
+.node[aria-pressed="true"]{border-color:var(--teal-dim);background:#1F2A2A}
+.node>.ico{margin-top:2px}
+.node-name{display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px;line-height:1.35}
+.node-stamp{height:14px;width:auto}
+.node-line{grid-column:2;font-size:13px;color:var(--fg-2);line-height:1.4}
+.node-mono{grid-column:2;font:400 12px var(--font-mono);color:var(--fg-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.node.is-warn .node-line{color:var(--gold)} .node.is-down .node-line{color:var(--red-text)} .node.is-live .node-line{color:var(--teal)}
+.sv-sec{margin-top:26px}
+.sv-sec h2{margin:0 0 10px;font-size:14px;font-weight:600;color:var(--fg)}
+.gates{display:grid;grid-template-columns:88px repeat(5,minmax(0,1fr));column-gap:12px}
+.gates .node{min-height:56px}
+.events{margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.events li{display:grid;grid-template-columns:72px 18px 96px minmax(0,1fr);gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
+.events .t{font:400 12px var(--font-mono);color:var(--fg-3)}
+.events .part{color:var(--fg-2)}
+.events .txt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.aside{min-width:0;overflow:auto;background:var(--bg-sunk);border-left:1px solid var(--line);padding:22px 22px 28px}
+.a-head{display:flex;align-items:center;gap:10px}
+.a-head img{width:28px;height:auto}
+.a-head h2{margin:0;font-size:18px;font-weight:600}
+.a-state{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:14px;font-weight:600}
+.a-state.is-ok{color:var(--green)} .a-state.is-warn{color:var(--gold)} .a-state.is-down{color:var(--red-text)} .a-state.is-off{color:var(--fg-2)} .a-state.is-live{color:var(--teal)}
+.a-why{margin:4px 0 0 24px;font-size:13px;color:var(--fg-2)}
+.a-what{margin:14px 0 0;font-size:14px;color:var(--fg);max-width:60ch}
+.a-sec{margin-top:18px}
+.a-sec h3{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--fg-2)}
+.law-list{margin:0;padding:0;list-style:none;font-size:14px}
+.law-list li{display:flex;gap:8px;align-items:flex-start;padding:3px 0}
+.law-list .ico{margin-top:3px}
+.law-list.can .ico{color:var(--green)} .law-list.cannot .ico{color:var(--red-text)}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;margin:0;font-size:13px}
+.kv dt{color:var(--fg-3)} .kv dd{margin:0;color:var(--fg);font-family:var(--font-mono);overflow-wrap:anywhere}
+.a-actions{display:flex;flex-wrap:wrap;gap:8px}
+.a-events{margin:0;padding:0;list-style:none;font-size:13px}
+.a-events li{display:grid;grid-template-columns:56px 16px minmax(0,1fr);gap:8px;align-items:start;padding:4px 0;color:var(--fg-2)}
+.a-events .t{font:400 12px var(--font-mono);color:var(--fg-3);padding-top:1px}
+.a-events .ico{margin-top:2px}
+
+/* ---------- вид «Журнал» ---------- */
+.v-journal{grid-template-rows:minmax(0,1fr);container-type:inline-size}
+.jr{display:grid;grid-template-columns:360px minmax(0,1fr);min-height:0}
+.jr-list{display:flex;flex-direction:column;min-height:0;background:var(--bg-sunk);border-right:1px solid var(--line)}
+.jr-tools{display:grid;gap:10px;padding:14px 14px 12px;border-bottom:1px solid var(--line)}
+.jr-search{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border:1px solid var(--line-ctrl);border-radius:8px;background:var(--bg);color:var(--fg-3)}
+.jr-search:focus-within{border-color:var(--teal-dim)}
+.jr-search input{flex:1;min-width:0;border:0;outline:0;background:none;color:var(--fg);font:400 14px var(--font-ui);caret-color:var(--teal)}
+.jr-search input::placeholder{color:var(--fg-3)}
+.chips{display:flex;flex-wrap:wrap;gap:2px}
+.fchip{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 7px;border:0;border-radius:6px;background:none;color:var(--fg-2);font-size:13px}
+.fchip:hover{background:var(--bg-hover);color:var(--fg)}
+.fchip[aria-pressed="true"]{background:var(--select);color:var(--fg)}
+.fchip .n{font:600 12px var(--font-mono)}
+.jr-scroll{overflow:auto;min-height:0;margin:0;padding:2px 8px 16px;list-style:none}
+.jr-day{padding:14px 8px 6px;font-size:12px;font-weight:600;color:var(--fg-3)}
+.srow{display:grid;grid-template-columns:16px minmax(0,1fr) auto;column-gap:10px;row-gap:4px;width:100%;padding:9px 10px;border:1px solid transparent;border-radius:8px;background:none;text-align:left}
+.srow:hover{background:var(--bg-hover)}
+.srow:hover .s-time{color:var(--fg-2)}
+.srow[aria-current="true"]{background:#1F2A2A;border-color:var(--teal-dim)}
+.srow>.ico{margin-top:2px}
+.s-title{font-weight:600;font-size:14px;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.s-time{font:400 12px var(--font-mono);color:var(--fg-3);white-space:nowrap;padding-top:2px}
+.s-meta{grid-column:2 / 4;display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;font-size:13px;color:var(--fg-2)}
+.s-meta .word{font-weight:600}
+.hcs{display:inline-flex;align-items:center;gap:8px}
+.hc{display:inline-flex;align-items:center;gap:3px;font-family:var(--font-mono)}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:18px;padding:0 7px;border:1px solid var(--line);border-radius:999px;color:var(--fg-2);white-space:nowrap}
+.tag .ico{width:12px;height:12px}
+.tag.gold{border-color:var(--gold-line);color:var(--gold)} .tag.red{border-color:rgba(224,106,94,.55);color:var(--red-text)} .tag.green{border-color:rgba(91,201,138,.5);color:var(--green)} .tag.teal{border-color:var(--teal-dim);color:var(--teal)}
+.jr-more{display:flex;align-items:center;gap:8px;margin:10px 8px 0;font-size:13px;color:var(--fg-2)}
+.jr-empty{padding:24px 10px;font-size:14px;color:var(--fg-2)}
+.jr-detail{overflow:auto;min-height:0}
+.jd{max-width:920px;padding:24px 32px 40px}
+.jd-h{margin:0;font-size:22px;font-weight:600;line-height:1.3}
+.jd-sub{display:flex;flex-wrap:wrap;gap:2px 8px;margin:6px 0 0;font-size:13px;color:var(--fg-2)}
+.jd-sub .mono{font-size:12px;color:var(--fg-3)}
+.jd-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}
+.jd-here{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--fg-2);margin-right:4px}
+.jd-end{display:flex;gap:10px;align-items:flex-start;margin-top:20px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--bg-raise)}
+.jd-end>.ico{margin-top:3px}
+.jd-end.is-warn{border-color:var(--gold-line)} .jd-end.is-down{border-color:rgba(224,106,94,.55)} .jd-end.is-live{border-color:var(--teal-dim)}
+.jd-end .lbl{font-size:13px;color:var(--fg-2)}
+.jd-end p{margin:2px 0 0;font-size:15px;max-width:72ch}
+.jd-facts{margin:12px 0 0;font-size:14px;color:var(--fg-2);max-width:78ch}
+.jd-facts li{display:flex;align-items:center;gap:7px}
+.jd-facts b{color:var(--fg);font-weight:600;font-family:var(--font-mono)}
+.jd-facts img{height:14px;width:auto}
+.jd h2{margin:28px 0 8px;font-size:14px;font-weight:600}
+.tl{list-style:none;margin:0;padding:0}
+.tl>li{display:grid;grid-template-columns:44px 84px minmax(0,1fr);column-gap:12px;padding:7px 0}
+.tl .t{font:400 12px var(--font-mono);color:var(--fg-3);padding-top:3px}
+.tl-who .who{font-size:13px}
+.tl-who .owner-who{color:var(--owner-text)} .tl-who .owner-who .ico{color:var(--owner);width:14px;height:14px}
+.tl-body{min-width:0;font-size:14px}
+.tl-task{margin:0;max-width:78ch;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tl-say,.tl-meta{margin:0;max-width:78ch;color:var(--fg-2)}
+.tl-ev{display:flex;gap:8px;align-items:flex-start;margin:0}
+.tl-ev .ico{margin-top:2px} .tl-ev b{font-weight:600}
+.tl-grant{display:flex;flex-direction:column;gap:2px}
+.tl-grant b{font-weight:600} .tl-grant .mono{font-size:13px;color:var(--fg-2)} .tl-grant .meta{font-size:13px}
+.jh{border:0;border-radius:8px;background:var(--bg-raise)}
+.jh-sum{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:8px;row-gap:3px;padding:9px 12px;border-radius:8px}
+.jh-sum:hover{background:var(--bg-hover)}
+.jh-sum .chev{grid-row:1 / 3;margin-top:2px;color:var(--fg-3);transition:transform var(--t) var(--ease)}
+details.jh[open]>.jh-sum .chev{transform:rotate(90deg)}
+.jh-l1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.jh-l1 b{font-weight:600}
+.jh-l2{font-size:13px;color:var(--fg-2)}
+.v-ok{color:var(--green)} .v-warn{color:var(--gold)} .v-fail{color:var(--red-text)} .v-live{color:var(--teal)}
+.jh-body{padding:2px 14px 14px 36px;border-top:1px solid var(--line)}
+.jh-why{margin:10px 0 0;font-size:14px;max-width:72ch}
+.tail{margin:6px 0 0;color:var(--red-text)}
+.jh-act{margin-top:12px}
+@container (max-width:1000px){.jr{grid-template-columns:300px minmax(0,1fr)}.jd{padding:20px 22px 32px}}
+@container (max-width:760px){.jr{grid-template-columns:minmax(0,1fr);grid-template-rows:250px minmax(0,1fr)}.jr-list{border-right:0;border-bottom:1px solid var(--line)}.tl>li{grid-template-columns:44px 72px minmax(0,1fr)}}
+
+/* ---------- вид «Дифф» ---------- */
+.v-diff{grid-template-rows:minmax(0,1fr);container-type:inline-size}
+.df{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:0}
+.df-list{overflow:auto;min-height:0;padding:4px 8px 16px;background:var(--bg-sunk);border-right:1px solid var(--line)}
+.df-h{display:flex;align-items:center;gap:6px;padding:14px 8px 6px;font-size:12px;font-weight:600;color:var(--fg-3)}
+.df-h .n{font-family:var(--font-mono);color:var(--gold)}
+.df-list ol{list-style:none;margin:0;padding:0}
+.dq{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:10px;row-gap:2px;width:100%;padding:9px 10px;border:1px solid transparent;border-radius:8px;background:none;text-align:left}
+.dq:hover{background:var(--bg-hover)}
+.dq[aria-current="true"]{background:#1F2A2A;border-color:var(--teal-dim)}
+.dq>.ico{margin-top:2px}
+.dq-t{font-weight:600;font-size:14px;line-height:1.35}
+.dq-m{grid-column:2;font-size:13px;color:var(--fg-2)}
+.df-main{overflow:auto;min-height:0}
+.dm{max-width:1120px;padding:0 32px 56px}
+.dm-top{position:sticky;top:0;z-index:2;padding:22px 0 14px;background:var(--bg);border-bottom:1px solid var(--line)}
+.dm-h{margin:0;font-size:22px;font-weight:600;line-height:1.3}
+.dm-sub{margin:4px 0 0;font-size:13px;color:var(--fg-2)}
+.dm-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}
+.btn-primary{background:var(--teal);border-color:var(--teal);color:var(--ink)}
+.btn-primary:hover{background:#5BFBF1}
+.btn-primary[disabled]{background:none;border-color:var(--line-ctrl);color:var(--fg-2);opacity:1}
+.dm-cons{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;font-size:13px;color:var(--fg-2);max-width:92ch}
+.dm-cons .ico{margin-top:1px}
+.dm-done{display:flex;gap:8px;align-items:center;margin:12px 0 0;font-size:14px}
+.dm-rej{max-width:780px;margin-top:12px;padding:12px 14px;border:1px solid var(--line-ctrl);border-radius:10px;background:var(--bg-raise)}
+.dm-rej label{display:block;margin-bottom:6px;font-size:13px;color:var(--fg-2)}
+.dm-rej textarea{display:block;width:100%;min-height:54px;resize:vertical;padding:8px 10px;border:1px solid var(--line-ctrl);border-radius:8px;background:var(--bg);color:var(--fg);font:400 14px/1.5 var(--font-ui);caret-color:var(--teal)}
+.dm-rej textarea:focus{outline:none;border-color:var(--teal-dim)}
+.dm-rej textarea::placeholder{color:var(--fg-3)}
+.dm-rej .dm-actions{margin-top:10px}
+.dm-ctx{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px;margin-top:18px}
+.dm-ctx .lbl{margin-bottom:3px;font-size:13px;color:var(--fg-2)}
+.dm-ctx p{margin:0;font-size:14px;max-width:62ch}
+.dm-fh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin-top:22px;font-size:13px;color:var(--fg-2)}
+.dm-fh b{font-weight:600;color:var(--fg)}
+.dm-fh .keys{margin-left:auto}
+.dm-fh .keys kbd{color:var(--fg-2)}
+.dm-index{list-style:none;margin:8px 0 0;padding:0}
+.dm-index button{display:flex;align-items:center;gap:8px;width:100%;padding:3px 6px;border:0;border-radius:6px;background:none;font:400 13px/1.7 var(--font-mono);color:var(--fg);text-align:left}
+.dm-index button:hover{background:var(--bg-hover)}
+.dm-index .num{margin-left:auto}
+.fs{margin-top:16px;border:1px solid var(--line);border-radius:10px;overflow:hidden;scroll-margin-top:190px}
+.fs-h{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-raise);font-size:13px}
+.fs:not(.is-viewed) .fs-h{border-bottom:1px solid var(--line)}
+.fs-h .path{font:600 13px var(--font-mono);color:var(--fg)}
+.fs-h .num{margin-left:auto;font-family:var(--font-mono)}
+.fs-v{display:flex;align-items:center;gap:6px;padding-left:12px;color:var(--fg-2);cursor:pointer}
+.fs-v input{width:14px;height:14px;margin:0;accent-color:var(--teal)}
+.fs.is-viewed .fs-h .path{color:var(--fg-2)}
+.fs-b{overflow:auto}
+.dt{width:100%;border-collapse:collapse;font:400 13px/1.6 var(--font-mono)}
+.dt td{padding:0 10px;white-space:pre;vertical-align:top}
+.dt .ln{width:1%;padding:0 8px;text-align:right;color:var(--fg-3);user-select:none}
+.dt .mk{display:inline-block;width:14px;color:var(--fg-3)}
+.dt tr.ad{background:rgba(91,201,138,.09)} .dt tr.ad .mk{color:var(--green)}
+.dt tr.dl{background:rgba(224,106,94,.09)} .dt tr.dl .mk{color:var(--red-text)}
+.dt tr.ad .ln,.dt tr.dl .ln{color:var(--fg-2)}
+.dt tr.hk td{padding:4px 12px;background:#1F1F27;color:#A3A3DC;font-family:var(--font-ui)}
+.dt tr.more td{padding:6px 12px;font-family:var(--font-ui);color:var(--fg-2)}
+.linkbtn{padding:0;border:0;background:none;color:var(--fg-2);font:inherit;text-decoration:underline;text-underline-offset:3px}
+@container (max-width:1000px){.df{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.df-list{max-height:200px;border-right:0;border-bottom:1px solid var(--line)}.dm{padding:0 20px 40px}.dm-ctx{grid-template-columns:1fr}.dm-fh .keys{display:none}}
+
+/* ---------- заглушки ---------- */
+.v-stub{overflow:auto}
+.stub{max-width:720px;margin:0 auto;padding:48px 24px}
+.stub h1{margin:0 0 8px;font-size:22px;font-weight:600}
+.stub p{margin:0 0 12px;font-size:15px;color:var(--fg-2);max-width:66ch}
+.stub ul{margin:0 0 16px;padding-left:18px;font-size:15px;color:var(--fg)} .stub li{margin:4px 0}
+.waiting{margin:20px 0 0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.waiting li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.waiting .mono{font-size:13px}
+.waiting .btn{margin-left:auto}
+
+/* ---------- палитра ---------- */
+.scrim{position:fixed;inset:0;z-index:50;background:rgba(10,10,12,.6)}
+.scrim[hidden]{display:none}
+.pal{position:fixed;z-index:51;left:50%;top:13vh;transform:translateX(-50%);width:min(640px,calc(100vw - 48px));background:var(--bg-raise);border:1px solid var(--line-ctrl);border-radius:12px;animation:palin var(--t) var(--ease)}
+.pal[hidden]{display:none}
+@keyframes palin{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translate(-50%,0)}}
+.pal-in{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.pal-in:focus-within{border-bottom-color:var(--teal-dim)}
+.pal-in .ico{color:var(--fg-3)}
+.pal-in input{flex:1;border:0;outline:0;background:none;color:var(--fg);font:400 15px var(--font-ui);caret-color:var(--teal)}
+.pal-in input::placeholder{color:var(--fg-3)}
+.pal-list{max-height:min(460px,60vh);overflow:auto;margin:0;padding:6px;list-style:none}
+.pal-g{padding:10px 10px 4px;font-size:12px;font-weight:600;color:var(--fg-3)}
+.pal-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:var(--r-m);font-size:14px;cursor:pointer}
+.pal-item[aria-selected="true"]{background:var(--select)}
+.pal-item .sub{color:var(--fg-3);font-size:13px}
+.pal-item kbd{margin-left:auto}
+.pal-item[aria-selected="true"] .sub,.pal-item[aria-selected="true"] kbd{color:var(--fg)}
+.pal-empty{padding:16px;color:var(--fg-2);font-size:14px}
+.pal-foot{display:flex;gap:16px;padding:8px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--fg-3)}
+
+/* анимации выключаются флагом окна и системной настройкой */
+[data-motion="off"] *,[data-motion="off"] *::before,[data-motion="off"] *::after{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+@media (max-width:1280px){.v-sostav{grid-template-columns:minmax(0,1fr) 320px}.gates{grid-template-columns:88px repeat(3,minmax(0,1fr));row-gap:12px}.gates .node:nth-child(n+5){grid-column:auto}}
+</style>
+</head>
+<body data-motion="on" data-ledger-font="mono">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ok" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4.5"/><path d="M8 3.5a4.5 4.5 0 0 0 0 9z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-down" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M6 6l4 4M10 6l-4 4"/></symbol>
+  <symbol id="i-off" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M5.5 8h5"/></symbol>
+  <symbol id="i-live" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" opacity=".35"/><path d="M8 2.5a5.5 5.5 0 0 1 5.5 5.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></symbol>
+  <symbol id="i-cross" viewBox="0 0 16 16"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></symbol>
+  <symbol id="i-tri" viewBox="0 0 16 16"><path d="M8 2.5l6 10.5H2z"/><path d="M8 6.5v3"/><circle cx="8" cy="11.3" r=".5" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 7.2v4"/><circle cx="8" cy="5" r=".5" fill="currentColor"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 16 16"><path d="M10.5 3l2.5 2.5-7 7H3.5V10z"/><path d="M9 4.5l2.5 2.5"/></symbol>
+  <symbol id="i-read" viewBox="0 0 16 16"><path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></symbol>
+  <symbol id="i-run" viewBox="0 0 16 16"><path d="M3 5l3 3-3 3M8.5 11.5h4.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></symbol>
+  <symbol id="i-key" viewBox="0 0 16 16"><circle cx="5.5" cy="10.5" r="3"/><path d="M7.7 8.3L13.5 2.5M11.5 4.5l1.8 1.8M10 6l1.5 1.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 16 16"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></symbol>
+  <symbol id="i-atom" viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="6.5" ry="2.4"/><ellipse cx="8" cy="8" rx="6.5" ry="2.4" transform="rotate(60 8 8)"/><ellipse cx="8" cy="8" rx="6.5" ry="2.4" transform="rotate(-60 8 8)"/><circle cx="8" cy="8" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="1.5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 16 16"><path d="M2.5 8h10M9 4.5L12.5 8 9 11.5"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 16 16"><circle cx="5" cy="3.5" r="1.5"/><circle cx="5" cy="12.5" r="1.5"/><circle cx="11" cy="5" r="1.5"/><path d="M5 5v6M11 6.5c0 3-6 2-6 4.5"/></symbol>
+  <symbol id="i-diff" viewBox="0 0 16 16"><path d="M8 2.5v6M5 5.5h6M5 12.5h6"/></symbol>
+  <symbol id="i-send" viewBox="0 0 16 16"><path d="M2 12.5h5.5M9.5 3.5L14 8l-4.5 4.5"/></symbol>
+  <symbol id="i-min" viewBox="0 0 16 16"><path d="M3.5 8h9"/></symbol>
+  <symbol id="i-max" viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" rx="1"/></symbol>
+  <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3"/></symbol>
+  <symbol id="i-owner" viewBox="0 0 16 16"><path d="M5 3.5L10 8l-5 4.5" stroke-width="2"/></symbol>
+  <symbol id="i-window" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 6h12"/></symbol>
+  <symbol id="i-rule" viewBox="0 0 16 16"><path d="M4 2.5h8v11H4z"/><path d="M6 5.5h4M6 8h4M6 10.5h2"/></symbol>
+  <symbol id="i-map" viewBox="0 0 16 16"><circle cx="8" cy="3.5" r="1.5"/><circle cx="3.5" cy="12.5" r="1.5"/><circle cx="12.5" cy="12.5" r="1.5"/><path d="M8 5v3M8 8L4 11M8 8l4 3"/></symbol>
+  <symbol id="i-split" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M9 3v10"/></symbol>
+  <symbol id="i-ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke-dasharray="3 7" stroke-width="1.6"/><circle cx="20" cy="2" r="1.8" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<div class="win" id="win">
+  <header class="titlebar">
+    <button class="proj" id="projBtn" title="C:\FractalOS · сменить проект: Ctrl+P" aria-haspopup="dialog">
+      <img src="../../assets/icon.png" alt="" width="20" height="20">
+      <span class="proj-name" id="projName">fractalos</span>
+      <svg class="ico s12" aria-hidden="true"><use href="#i-chev-down"/></svg>
+    </button>
+    <nav class="tabs" aria-label="Виды окна" id="tabs"></nav>
+    <div class="drag" aria-hidden="true"></div>
+    <button class="help-btn" id="helpBtn" aria-label="Подсказки по окну, F1" title="Что здесь что · F1">?</button>
+    <button class="pal-btn" id="palBtn" aria-haspopup="dialog"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>Команды <kbd>Ctrl K</kbd></button>
+    <div class="winctl">
+      <button aria-label="Свернуть"><svg class="ico" aria-hidden="true"><use href="#i-min"/></svg></button>
+      <button aria-label="Развернуть"><svg class="ico" aria-hidden="true"><use href="#i-max"/></svg></button>
+      <button class="close" aria-label="Закрыть"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+  </header>
+
+  <div class="law" id="law" role="status" aria-live="polite" aria-label="Строка закона и здоровья"></div>
+
+  <main class="views" id="views">
+    <div class="side-head" id="sideHead"></div>
+    <section class="view v-talk" id="v-talk" role="tabpanel" aria-label="Разговор">
+      <div class="scroll" id="ledgerScroll"><div class="col"><ol class="ledger" id="ledger" aria-label="Лента"></ol></div></div>
+      <div class="dock"><div class="col">
+        <div class="mascot" id="mascot" aria-hidden="true">
+          <svg class="ring st-live"><use href="#i-ring"/></svg>
+          <img class="m-body" src="../../assets/mascot/spirit.png" alt="">
+          <img class="m-eyes" src="../../assets/mascot/mini-eyes.png" alt="">
+        </div>
+        <div class="act" id="act" aria-live="polite"></div>
+        <form class="cbox" id="composer" autocomplete="off">
+          <label class="sr" for="field">Сообщение рту</label>
+          <textarea id="field" rows="2" placeholder="Напишите задачу…" spellcheck="false"></textarea>
+          <div class="crow">
+            <button type="button" class="ibtn" aria-label="Прикрепить файл"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></button>
+            <div class="route" id="route" aria-live="polite"></div>
+            <button type="button" class="effort" title="Глубина размышлений и режим плана">думалка: high <svg class="ico s12" aria-hidden="true"><use href="#i-chev-down"/></svg></button>
+            <button type="submit" class="send" id="send" aria-label="Отправить рту · Enter"><svg class="ico" aria-hidden="true"><use href="#i-send"/></svg></button>
+          </div>
+        </form>
+        <p class="hints"><span><kbd>F1</kbd> что здесь что</span><span><kbd>Ctrl+K</kbd> все команды</span></p>
+      </div></div>
+    </section>
+
+    <section class="view v-sostav" id="v-sostav" role="tabpanel" aria-label="Состав и здоровье">
+      <div class="sv-main">
+        <div class="sv-head">
+          <div><h1 id="svTitle"></h1><div class="sv-sub" id="svSub"></div></div>
+          <button class="btn" id="recheck"><svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg>Проверить сейчас</button>
+        </div>
+        <div class="map" id="map"><svg class="edges" id="edges" aria-hidden="true"></svg></div>
+        <section class="sv-sec"><h2>События системы</h2><ol class="events" id="events"></ol></section>
+        <section class="sv-sec"><h2>Шлюзы и правила</h2><div class="gates" id="gates"></div></section>
+      </div>
+      <aside class="aside" id="aside" aria-live="polite"></aside>
+    </section>
+
+    <section class="view v-journal" id="v-journal" role="tabpanel" aria-label="Журнал сессий">
+      <div class="jr">
+        <div class="jr-list">
+          <div class="jr-tools">
+            <label class="jr-search"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">Поиск по журналу</span><input id="jSearch" type="search" placeholder="Задача, найм, файл…" autocomplete="off" spellcheck="false"><kbd>Ctrl+F</kbd></label>
+            <div class="chips" id="jChips" role="group" aria-label="Какие сессии показать"></div>
+          </div>
+          <ol class="jr-scroll" id="jList" aria-label="Сессии по дням"></ol>
+        </div>
+        <div class="jr-detail" id="jDetail" tabindex="-1" aria-label="Сессия"></div>
+      </div>
+    </section>
+
+    <section class="view v-diff" id="v-diff" role="tabpanel" aria-label="Дифф на проверку">
+      <div class="df">
+        <nav class="df-list" aria-label="Диффы">
+          <div class="df-h">Ждут проверки <span class="n" id="dfWaitN"></span></div>
+          <ol id="dfQueue"></ol>
+          <div class="df-h">Проверено</div>
+          <ol id="dfDone"></ol>
+        </nav>
+        <div class="df-main" id="dfMain"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="help" id="help" hidden><div class="help-scrim"></div><div id="helpMarks"></div><div class="help-bar">Подсказки по окну. Закрыть — <kbd>F1</kbd>, <kbd>Esc</kbd> или щелчок.</div></div>
+<div class="scrim" id="scrim" hidden></div>
+<div class="pal" id="pal" role="dialog" aria-modal="true" aria-label="Палитра команд" hidden>
+  <div class="pal-in"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><input id="palInput" type="text" placeholder="Команда, вид или проект…" aria-label="Поиск команды" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="palList" autocomplete="off" spellcheck="false"></div>
+  <ul class="pal-list" id="palList" role="listbox"></ul>
+  <div class="pal-foot"><span><kbd>↑↓</kbd> выбрать</span><span><kbd>Enter</kbd> выполнить</span><span><kbd>Esc</kbd> закрыть</span></div>
+</div>
+
+<script>
+"use strict";
+const A = "../../assets/";
+const STAMP = {mouth: A+"mascot/roles/mouth-32.png", brain: A+"mascot/roles/brain-32.png", hands: A+"mascot/roles/hands-32.png"};
+const $ = (s, r=document) => r.querySelector(s);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ico = (id, cls="") => `<svg class="ico ${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const stamp = (r, h=14) => `<img src="${STAMP[r]}" alt="" style="height:${h}px">`;
+const ST_ICON = {ok:"ok", warn:"warn", down:"down", off:"off", live:"live"};
+const ST_WORD = {ok:"работает", warn:"с оговоркой", down:"лежит", off:"выключено", live:"работает сейчас"};
+const stIco = st => ico(ST_ICON[st], "st-"+st);
+
+const PROJECTS = [
+  {id:"fractalos",     path:"C:\\FractalOS",       rule:"fractal-корень · руки правят копию, итог — дифф"},
+  {id:"fractalmem",    path:"C:\\fractalmem",      rule:"fractal-корень · копия и дифф"},
+  {id:"fractalprofit", path:"C:\\fractalprofit",   rule:"fractal-корень · копия и дифф"},
+  {id:"metrprod",      path:"D:\\work\\metrprod",  rule:"внешний проект · живёт по своим правилам"},
+];
+
+/* ---------- сценарии прототипа ---------- */
+function scenario(name){
+  const s = {
+    name, project:"fractalos", checked:"14:32:05", policy:"grant",
+    mouth:{prov:"Grok", st:"ok"},
+    brain:{on:true, prov:"Grok", st:"ok", why:""},
+    hands:{on:true, busy:false},
+    mem:{st:"ok", atoms:212},
+    grant:{st:"none"},
+    lock:{holder:null},
+    diffs:2, running:false, draft:""
+  };
+  if (name==="hire" || name==="grant"){
+    s.checked="14:41:12"; s.running=true; s.hands.busy=true;
+    s.lock={holder:"руки · найм 3f9a1c2e", since:"14:37"};
+  }
+  if (name==="grant"){ s.grant={st:"asked"}; }
+  if (name==="degraded"){
+    s.checked="14:28:40";
+    s.brain={on:true, prov:"Flash", st:"warn", why:"у Grok кончилась квота, до 16:00"};
+    s.mem={st:"down", atoms:212, why:"нет связи с Bridge с 14:21"};
+    s.hands={on:false, busy:false};
+    s.draft="найми: перенеси парсер сессий в fractalmem";
+  }
+  return s;
+}
+
+let S = scenario("ok");
+let UI = {view:"talk", sel:"hands", side:null, lastSide:"sostav", js:"cur", jf:"all", jq:"", dsel:"7c1e40b2", dview:{}, dfile:0, drej:false, palette:false, palMode:"all", palIdx:0, extra:[]};
+
+/* ---------- проблемы для строки закона и сводки ---------- */
+function issues(s){
+  const out = [];
+  if (s.mem.st==="down") out.push({part:"mem", level:"down", short:"Память: нет связи", long:"память лежит: нет связи — работа идёт без памяти"});
+  if (s.brain.on && s.brain.st==="warn") out.push({part:"brain", level:"warn", short:"Мозг на запасном Flash", long:"мозг работает на запасном Flash: у Grok кончилась квота"});
+  return out;
+}
+
+/* ---------- строка закона ---------- */
+function renderLaw(){
+  const s = S, is = issues(s);
+  const worst = is.find(i=>i.level==="down") || is[0];
+  let overall;
+  if (!worst) overall = `<button class="seg overall" data-go="surf" title="Все части системы отвечают">${stIco("ok")}<b>Всё работает</b></button>`;
+  else overall = `<button class="seg overall is-${worst.level}" data-go="${worst.part}" title="${esc(worst.long)}">${stIco(worst.level)}<b>${esc(worst.short)}</b>${is.length>1?`<span class="why">и ещё ${is.length-1}</span>`:""}</button>`;
+
+  const brainVal = !s.brain.on ? "выключен" : s.brain.st==="warn" ? "Flash, запасной" : s.brain.prov;
+  const brainCls = !s.brain.on ? "is-off" : s.brain.st==="warn" ? "is-warn" : "";
+  const handsVal = !s.hands.on ? "выключены" : s.hands.busy ? "работают" : "включены";
+  const handsCls = !s.hands.on ? "is-off" : s.hands.busy ? "is-live" : "";
+  const memVal = s.mem.st==="down" ? "нет связи" : "работает";
+  const grantVal = s.grant.st==="open" ? `открыт до ${s.grant.until}` : s.grant.st==="asked" ? "запрошен руками" : "не выдан";
+  const writer = s.lock.holder ? s.lock.holder.split(" · ")[0] : "никто";
+
+  $("#law").innerHTML = overall + `<span class="sep"></span>`
+   + `<button class="seg" data-go="mouth" title="Рот — с кем вы говорите в чате">${stamp("mouth",12)}рот <b>${s.mouth.prov}</b></button>`
+   + `<button class="seg ${brainCls}" data-go="brain" title="Мозг — судит и пишет бриф для рук${s.brain.why?": "+esc(s.brain.why):""}">${stamp("brain")}мозг <b>${brainVal}</b></button>`
+   + `<button class="seg ${handsCls}" data-go="hands" title="Руки — делают объёмную работу по найму">${stamp("hands")}руки <b>${handsVal}</b></button>`
+   + `<span class="sep"></span>`
+   + `<button class="seg ${s.mem.st==="down"?"is-down":""}" data-go="mem" title="Память продукта">${ico("atom")}память <b>${memVal}</b></button>`
+   + `<button class="seg ${s.grant.st!=="none"?"is-warn":""}" data-go="grant" title="Грант — разрешение рукам писать вне песочницы. Выдаёте только вы">${ico("key")}грант <b>${grantVal}</b></button>`
+   + `<button class="seg ${s.lock.holder?"is-live":""}" data-go="lock" title="Кто сейчас пишет в проект. Пока пишет один, второй не может${s.lock.holder?": "+esc(s.lock.holder):""}">${ico("lock")}пишет: <b>${esc(writer)}</b></button>`
+   + `<span class="spacer"></span>`
+   + (s.policy!=="grant" ? `<button class="seg is-warn" data-go="grant" title="Политика ${s.policy}: запись вне песочницы без гранта"><b>запись без гранта</b></button>` : "")
+   + `<span class="checked" title="Части опрашиваются каждые 4 с">проверено ${s.checked.slice(0,5)}</span>`;
+}
+
+/* ---------- лента ---------- */
+const T = {
+  owner:(t, html) => `<li class="turn owner"><div class="gut"><span class="who">${ico("owner")}хозяин</span><span class="when">${t}</span></div><div class="body prose">${html}</div></li>`,
+  mouth:(t, prov, html) => `<li class="turn"><div class="gut"><span class="who" title="рот · ${prov}">${stamp("mouth",11)}рот</span><span class="when">${prov!==S.mouth.prov?prov+" · ":""}${t}</span></div><div class="body prose">${html}</div></li>`,
+  role:(r, label, t, prov, html) => `<li class="turn"><div class="gut"><span class="who" title="${label} · ${prov}">${stamp(r)}${label}</span><span class="when">${r==="brain"&&prov!==(S.brain.st==="warn"?"Flash":S.brain.prov)?prov+" · ":""}${t}</span></div><div class="body">${html}</div></li>`,
+  note:(t, tone, html) => {
+    const ic = {info:ico("info","st-off"), warn:ico("tri","st-warn"), down:ico("down","st-down"), off:ico("off","st-off"), ok:ico("check","st-ok")}[tone];
+    return `<li class="turn note is-${tone}"><div class="gut"><span class="who">окно</span><span class="when">${t}</span></div><div class="body">${ic}<span>${html}</span></div></li>`;
+  }
+};
+
+function brief(meta, items, expect, open=false){
+  return `<details class="blk"${open?" open":""}><summary class="sum">${ico("chev","chev")}<span class="sum-title">Бриф для рук</span><span class="meta">${meta}</span></summary>
+  <div class="brief-body"><ol>${items.map(i=>`<li>${i}</li>`).join("")}</ol>
+  <div class="meta">Ждём результатом:</div><ul class="expect">${expect.map(e=>`<li>${ico("diff","st-off")}<span translate="no">${e}</span></li>`).join("")}</ul>
+  <div class="law-note">${ico("rule")}<span>Руки видят только этот бриф, а не ваш исходный текст: рот не нанимает по сырому тексту.</span></div></div></details>`;
+}
+
+function jobDone(){
+  const o = DOVR["7c1e40b2"];
+  const dw = !o ? `<span class="w-gold">дифф ждёт вашей проверки</span>` : o.st==="applied" ? `<span class="w-green">дифф применён вами</span>` : `<span class="w-red">дифф отклонён вами</span>`;
+  return `<div class="jobw"><details class="job">
+  <summary class="job-sum">${ico("chev","chev")}
+    <span class="job-l1">${ico("check","st-ok")}<span class="w-green">Готово — подтверждено распиской</span></span>
+    <span class="job-l2">3 файла <span class="plus">+86</span> <span class="minus">−21</span> · 4 мин · ${dw} · <span class="more">подробнее</span></span>
+  </summary>
+  <div class="job-body">
+  <div class="job-head"><span class="job-title">Найм</span><span class="id">7c1e40b2</span>
+    <span class="chip">каталог lean</span><span class="chip">${ico("branch")}копия дерева fractalos</span></div>
+  <ol class="stages">
+    <li class="stage">${ico("check","st-ok")}<b>Бриф</b><span class="t">14:03</span></li>
+    <li class="stage">${ico("check","st-ok")}<b>Работа</b><span class="t">4:12</span></li>
+    <li class="stage">${ico("check","st-ok")}<b>Расписка</b></li>
+    <li class="stage">${!o ? `${ico("warn","st-warn")}<b>Дифф</b><span>ждёт вашей проверки</span>` : o.st==="applied" ? `${ico("check","st-ok")}<b>Дифф</b><span>применён</span>` : `${ico("cross","st-down")}<b>Дифф</b><span>отклонён</span>`}</li>
+  </ol>
+  <div class="receipt">
+    <p class="done" style="margin-left:0">Строка статуса над композером читает последнюю заметку каждого тона; старые вызовы <code class="inl">set_note(text)</code> работают как «инфо».</p>
+    <p class="rows-h">Ждали — получили:</p>
+    <ul class="rows">
+      <li>${ico("check","st-ok")}<span class="path" translate="no">app/statusline.py</span></li>
+      <li>${ico("check","st-ok")}<span class="path" translate="no">app/rail.py · set_note(text, tone)</span></li>
+      <li>${ico("check","st-ok")}<span class="path" translate="no">runtime/hire-out/7c1e40b2/done.md</span></li>
+    </ul>
+    <p class="rows-h">Изменены в копии:</p>
+    <ul class="rows">
+      <li>${ico("edit","st-off")}<span class="path" translate="no">app/statusline.py</span><span class="new">новый</span><span class="num"><span class="plus">+64</span></span></li>
+      <li>${ico("edit","st-off")}<span class="path" translate="no">app/rail.py</span><span class="num"><span class="plus">+18</span> <span class="minus">−6</span></span></li>
+      <li>${ico("edit","st-off")}<span class="path" translate="no">app/window.py</span><span class="num"><span class="plus">+4</span> <span class="minus">−15</span></span></li>
+    </ul>
+    <p class="rows-h">Дифф применяет тот, кто дал задание, — вы.</p>
+  </div>
+  <details class="trace"><summary class="sum">${ico("chev","chev")}<span>Трасса · 14 шагов</span><span class="meta">${ico("check","st-ok s12")} 11 · ${ico("edit","st-off s12")} 3</span></summary>
+    <ul class="trace-list">
+      <li>${ico("read","st-off")}<span translate="no">app/rail.py</span><span class="ms">0,2 с</span></li>
+      <li>${ico("run","st-off")}<span translate="no">rg "set_note(" app/</span><span class="ms">118 вхождений</span></li>
+      <li>${ico("edit","st-ok")}<span translate="no">app/statusline.py</span><span class="ms">+64</span></li>
+      <li>${ico("edit","st-ok")}<span translate="no">app/rail.py</span><span class="ms">+18 −6</span></li>
+      <li>${ico("run","st-off")}<span translate="no">python -m app.statusline --self-test</span><span class="ms">ok · 1,4 с</span></li>
+    </ul></details>
+  </div>
+</details>${!o ? `<button class="btn btn-gold job-cta" data-diff="7c1e40b2">${ico("diff")}Проверить дифф</button>` : `<button class="btn btn-quiet job-cta" data-diff="7c1e40b2">${ico("diff")}Открыть дифф</button>`}</div>`;
+}
+
+const JOB_LIVE = (waitingGrant) => `<details class="job">
+  <summary class="job-sum" style="padding-right:14px">${ico("chev","chev")}
+    <span class="job-l1">${waitingGrant?ico("key","st-warn"):ico("live","st-live")}<span class="${waitingGrant?"w-gold":"w-teal"}">${waitingGrant?"Руки ждут вашего решения по гранту":"Руки работают"}</span></span>
+    <span class="job-l2">${waitingGrant?"хотят записать C:\\FractalOS\\config.toml":"сейчас: правка app/window.py"} · 3:41 · этап 2 из 4 · <span class="more">подробнее</span></span>
+  </summary>
+  <div class="job-body">
+  <div class="job-head"><span class="job-title">Найм</span><span class="id">3f9a1c2e</span>
+    <span class="chip">каталог lean</span><span class="chip">${ico("branch")}копия дерева fractalos</span></div>
+  <ol class="stages">
+    <li class="stage">${ico("check","st-ok")}<b>Бриф</b><span class="t">14:37</span></li>
+    <li class="stage">${waitingGrant?ico("warn","st-warn"):ico("live","st-live")}<b>Работа</b><span>${waitingGrant?"ждёт гранта":"идёт"}</span><span class="t">3:41</span></li>
+    <li class="stage">${ico("off","st-off")}<span>Расписка</span></li>
+    <li class="stage">${ico("off","st-off")}<span>Дифф</span></li>
+  </ol>
+  <div class="receipt"><ul class="trace-list" style="padding:0">
+    <li>${ico("read","st-off")}<span translate="no">docs/ANSWERS-R0.md §5</span><span class="ms">0,1 с</span></li>
+    <li>${ico("run","st-off")}<span translate="no">rg "set_note(" app/window.py</span><span class="ms">118 вхождений</span></li>
+    <li>${ico("edit","st-ok")}<span translate="no">app/window.py · 22 вызова с тоном</span><span class="ms">+22 −22</span></li>
+    <li class="live-step">${waitingGrant?ico("key","st-warn"):ico("live","st-live")}<span translate="no">${waitingGrant?"запись C:\\FractalOS\\config.toml":"app/window.py · вызовы 23–41"}</span><span class="ms">${waitingGrant?"ждёт":"идёт"}</span></li>
+  </ul>
+  <p class="rows-h">Снять работу — <kbd>Esc</kbd> или «Стоп» над полем. Рот не трогаем, снимается только найм.</p></div>
+  </div>
+</details>`;
+
+const ASK = `<div class="ask" role="group" aria-labelledby="askTitle">
+  <h3 id="askTitle">${ico("key")}Руки просят запись вне песочницы</h3>
+  <dl class="facts">
+    <dt>Кто</dt><dd>руки · найм <span class="mono">3f9a1c2e</span></dd>
+    <dt>Куда</dt><dd class="mono" translate="no">C:\\FractalOS\\config.toml</dd>
+    <dt>Зачем</dt><dd>«добавить раздел [status] с цветами тонов»</dd>
+    <dt>Сейчас</dt><dd>политика grant · гранта нет</dd>
+  </dl>
+  <div class="ask-actions">
+    <button class="btn btn-gold" data-act="grant30">${ico("key")}Разрешить на 30 минут</button>
+    <button class="btn" data-act="grant480">На 8 часов…</button>
+    <button class="btn btn-quiet" data-act="deny">Не разрешать</button>
+  </div>
+  <div class="law-note">${ico("rule")}<span>Грант — окно времени: пока оно открыто, руки пишут вне песочницы без вопросов. Выдать его можете только вы; рот и руки — нет.</span></div>
+</div>`;
+
+const CODE = `<pre translate="no"><span class="k">def</span> <span class="f">_on_ghost</span>(self, text):
+    <span class="k">if not</span> self.state.get(<span class="s">"plan_mode"</span>):
+        self.composer.show_ghost(<span class="s">""</span>)   <span class="c"># вне режима плана строка гаснет</span>
+        <span class="k">return</span>
+    got = guidemod.preview(text, self._ghost_ctx(), self.cfg)</pre>`;
+
+function ledgerHTML(s){
+  const L = [];
+  if (s.name==="degraded"){
+    L.push(T.owner("13:18", "<p>Сравни две схемы хранения сессий: одна папка на сессию или один журнал на день. Код не нужен, нужен вывод.</p>"));
+    L.push(T.note("13:20", "warn", "мозг: у Grok кончилась квота — вердикты даёт запасной Flash до 16:00. Хотели Grok."));
+    L.push(T.mouth("13:21", "Grok", "<p>Папка на сессию выигрывает. Наймы, расписки и диффы уже живут в <code>runtime/dispatch/&lt;sid&gt;/</code>; журнал по дням пришлось бы каждый раз собирать обратно по сессиям.</p><p>Минус один — много мелких папок. Он снимается архивом всего, что старше 30 дней.</p>"));
+    L.push(T.note("14:21", "down", "память: нет связи — работа идёт без памяти."));
+    L.push(T.note("14:25", "off", "руки выключены вами — найм не запустится. Демон остаётся тёплым."));
+    L.push(T.owner("14:27", "<p>Сколько сейчас сессий в архиве?</p>"));
+    L.push(T.mouth("14:27", "Grok", "<p>В архиве 41 сессия, последняя — 19 сентября. Активных — 14 за эту неделю.</p>"));
+    return L.join("");
+  }
+  L.push(T.owner("14:02", "<p>Строка статуса молчит: <code>set_note</code> пишет в поле, которое никто не читает. Найми руки: выведи последние заметки в строку над композером, с тоном инфо / предупреждение / сбой.</p>"));
+  L.push(T.mouth("14:02", "Grok", "<p>Понял. Это объём кода в fractalos — отдаю мозгу на бриф, потом рукам. Руки правят копию дерева, дифф придёт вам на проверку.</p>"));
+  L.push(T.role("brain", "мозг", "14:03", "Grok", brief("5 пунктов · ждём 3 результата", [
+    "Дать <code class=\"inl\">Rail.set_note</code> второй аргумент <code class=\"inl\">tone</code>: инфо, предупреждение, сбой; по умолчанию — инфо.",
+    "Новый виджет <code class=\"inl\">StatusLine</code> над композером: последняя заметка каждого тона, не одна строка на всех.",
+    "Сбой и предупреждение держатся, пока не сменились; инфо гаснет через 8 с.",
+    "Закон окна (правила, роли, эти документы) не трогать.",
+    "Self-test: три тона, перетирание, пустой текст."],
+    ["app/statusline.py", "app/rail.py — set_note(text, tone)", "runtime/hire-out/&lt;id&gt;/done.md"])));
+  L.push(T.role("hands", "руки", "14:03", "DSH", jobDone()));
+  L.push(T.mouth("14:07", "Grok", "<p>Руки закончили, расписка подтвердила все три результата. Дифф на 3 файла ждёт вас во вкладке «Дифф». Главное: <code>set_note</code> теперь принимает тон, старые вызовы работают как «инфо».</p>"));
+  if (s.name==="ok"){
+    L.push(T.owner("14:31", "<p>Посмотри, почему ghost виден только в режиме плана. Код не трогай, просто объясни.</p>"));
+    L.push(T.mouth("14:31", "Grok", "<p><code>_on_ghost</code> в <code>app/window.py</code> выходит сразу, если режим плана выключен:</p>" + CODE + "<p style=\"margin-top:.7em\">При этом <code>guide.preview</code> ничего не запускает, не пишет и не зовёт модель. Показывать предсказание можно всегда; цена — один вызов раз в 180 мс, пока вы печатаете.</p>"));
+    L.push(...UI.extra);
+    return L.join("");
+  }
+  L.push(T.owner("14:36", "<p>Найми: добавь тон ко всем оставшимся вызовам <code>set_note</code> в <code>app/window.py</code> — список из 55 текстов в <code>docs/ANSWERS-R0.md</code>, §5.</p>"));
+  L.push(T.mouth("14:36", "Grok", "<p>Это объём в fractalos. Передаю мозгу на бриф; руки будут править копию дерева.</p>"));
+  L.push(T.role("brain", "мозг", "14:37", "Grok", brief("4 пункта · ждём 2 результата", [
+    "Пройти 118 вызовов <code class=\"inl\">set_note</code> в <code class=\"inl\">app/window.py</code> и проставить тон по таблице из §5.",
+    "Жаргон в текстах не переписывать — только тон.",
+    "Закон окна не трогать.",
+    "Self-test: ни одного вызова без тона."], ["app/window.py — 118 вызовов с тоном", "runtime/hire-out/&lt;id&gt;/done.md"])));
+  L.push(T.role("hands", "руки", "14:37", "DSH", JOB_LIVE(s.name==="grant")));
+  if (s.name==="grant"){
+    if (s.grant.st==="asked") L.push(T.role("hands", "руки", "14:41", "DSH", ASK));
+    if (s.grant.st==="open") L.push(T.note("14:42", "warn", `грант выдан вами до ${s.grant.until} — руки пишут вне песочницы без вопросов. Снять: строка закона → грант.`));
+    if (s.grant.st==="denied") L.push(T.note("14:42", "info", "грант не выдан — руки продолжают без записи вне песочницы"));
+  }
+  L.push(...UI.extra);
+  return L.join("");
+}
+
+function renderLedger(){
+  $("#ledger").innerHTML = ledgerHTML(S);
+  requestAnimationFrame(toBottom);
+}
+function toBottom(){ const sc = $("#ledgerScroll"); sc.scrollTop = sc.scrollHeight; }
+
+/* ---------- активность и композер ---------- */
+function renderActivity(){
+  const m = $("#mascot");
+  if (S.running){
+    m.setAttribute("data-busy","");
+    const txt = S.grant.st==="asked" ? "Руки ждут вашего решения по гранту · найм <b class=\"mono\">3f9a1c2e</b>" : "Руки работают · найм <b class=\"mono\">3f9a1c2e</b> · правка app/window.py";
+    $("#act").innerHTML = `<span class="txt">${txt}</span><span class="clock">3:41</span><button class="btn btn-quiet" data-act="stop">${ico("stop")}Стоп <kbd>Esc</kbd></button>`;
+  } else {
+    m.removeAttribute("data-busy");
+    const o = DOVR["7c1e40b2"], last = S.name==="degraded" ? "Тихо. Руки выключены — найм не запустится." : `Тихо. Последний найм в 14:07 подтверждён, дифф ${!o ? "ждёт проверки" : o.st==="applied" ? "применён" : "отклонён"}.`;
+    $("#act").innerHTML = `<span class="txt">${last}</span>`;
+  }
+  const send = $("#send");
+  if (S.running){ send.setAttribute("aria-label","В очередь · Enter"); }
+  else send.setAttribute("aria-label","Отправить рту · Enter");
+}
+
+function routeFor(text){
+  const t = text.trim().toLowerCase();
+  const queue = S.running ? `<span class="rest">ход идёт — Enter поставит в очередь ·</span>` : "";
+  if (!t && S.running) return {cls:"is-queue", html:`${ico("arrow")}<span>Enter</span><span class="dest">в очередь</span><span class="rest">ход идёт — уйдёт рту следом</span>`};
+  if (!t) return {cls:"", html:`${ico("arrow")}<span>Enter</span>${stamp("mouth",11)}<span class="dest">рот · ${S.mouth.prov}</span><span class="rest">разговор</span>`};
+  if (t.startsWith("/")) return {cls:"", html:`${ico("arrow")}<span class="dest">команда окна</span><span class="rest">рту не уходит</span>`};
+  if (/^(найми|найм|поручи)/.test(t)){
+    if (!S.hands.on) return {cls:"is-refuse", html:`${ico("arrow")}<span>Enter</span><span class="dest">отказ: руки выключены</span><span class="rest">включить: «руки» в строке закона или Ctrl+K</span>`};
+    return {cls:"", html:`${queue}${ico("arrow")}<span>Enter</span>${stamp("brain")}<span class="dest">найм</span><span class="rest">мозг пишет бриф, руки делают в копии дерева · уверенность 0,72</span>`};
+  }
+  if (/^(исследуй|разведай|разведка)/.test(t)) return {cls:"", html:`${queue}${ico("arrow")}<span>Enter</span><span class="dest">разведка</span><span class="rest">руки только читают</span>`};
+  if (/(спланируй|план|оцени|сравни)/.test(t)) return {cls:"", html:`${queue}${ico("arrow")}<span>Enter</span>${stamp("brain")}<span class="dest">мозг</span><span class="rest">суждение без кода · ${S.brain.st==="warn"?"запасной Flash":S.brain.prov}</span>`};
+  return {cls: S.running?"is-queue":"", html:`${queue}${ico("arrow")}<span>Enter</span>${stamp("mouth",11)}<span class="dest">рот · ${S.mouth.prov}</span><span class="rest">разговор</span>`};
+}
+function renderRoute(){
+  const r = routeFor($("#field").value);
+  const el = $("#route"); el.className = "route " + r.cls; el.innerHTML = r.html;
+}
+function autosize(){ const f=$("#field"); f.style.height="auto"; f.style.height=Math.min(f.scrollHeight,190)+"px"; }
+
+/* ---------- состав ---------- */
+function nodes(s){
+  const handsSt = !s.hands.on ? "off" : s.hands.busy ? "live" : "ok";
+  const brainSt = !s.brain.on ? "off" : s.brain.st;
+  return [
+    {id:"surf", lane:0, col:2, name:"окно", ic:"window", st:"ok", line:"лента · композер · строка закона", mono:"Qt · PySide6"},
+    {id:"mouth", lane:1, col:1, name:"рот", stamp:"mouth", st:s.mouth.st, line:`отвечает · ${s.mouth.prov}`, mono:"один чат"},
+    {id:"brain", lane:1, col:2, name:"мозг", stamp:"brain", st:brainSt, line: brainSt==="warn"?"запасной Flash · квота Grok":brainSt==="off"?"выключен":`доступен · ${s.brain.prov}`, mono:"brain_axis"},
+    {id:"hands", lane:1, col:3, name:"руки", stamp:"hands", st:handsSt, line: handsSt==="off"?"выключены вами":handsSt==="live"?"работают · найм 3f9a1c2e":"готовы · DSH тёплый", mono:"deepseek-v4.1-flash"},
+    {id:"acp", lane:2, col:1, name:"сессия рта", ic:"run", st:"ok", line:"Grok · ACP", mono:"Flash — чат через mux"},
+    {id:"flash", lane:2, col:2, name:"flash closer", ic:"run", st:"ok", line:"отвечает · 41 мс", mono:"127.0.0.1:11435"},
+    {id:"hire", lane:2, col:3, name:"найм", ic:"run", st: !s.hands.on?"off":s.hands.busy?"live":"ok", line: !s.hands.on?"не запустится":s.hands.busy?"1 идёт · очередь пуста":"очередь пуста", mono:"hire.py · slim · lean · full"},
+    {id:"dsh", lane:3, col:1, name:"dsh mux", ic:"map", st:"ok", line:"отвечает · 3 воркера тёплые", mono:"127.0.0.1:11436"},
+    {id:"ollama", lane:3, col:2, name:"ollama", ic:"map", st:"ok", line:"отвечает · 12 мс", mono:"127.0.0.1:11434"},
+    {id:"job", lane:3, col:3, name:"POST /job", ic:"map", st:"ok", line:"через mux · отвечает", mono:"hire/v1"},
+    {id:"mem", lane:4, col:2, name:"память", ic:"atom", st:s.mem.st, line: s.mem.st==="down"?"нет связи":"работает", mono:"fractalmem"},
+    {id:"root", lane:5, col:2, name:"корень", ic:"branch", st:"ok", line:"fractal-корень · копия и дифф", mono:"C:\\FractalOS"},
+  ];
+}
+function gates(s){
+  return [
+    {id:"grant", name:"грант", ic:"key", st: s.grant.st==="none"?"off":"warn", line: s.grant.st==="open"?`выдан до ${s.grant.until}`:s.grant.st==="asked"?"запрошен руками":"не выдан"},
+    {id:"lock", name:"замок писателя", ic:"lock", st: s.lock.holder?"live":"ok", line: s.lock.holder?`пишут ${s.lock.holder.replace("руки · ","руки, ")}`:"свободен"},
+    {id:"teacher", name:"учитель", ic:"rule", st:"ok", line:"правила после найма"},
+    {id:"s1", name:"классификаторы", ic:"map", st:"off", line:"тень · не решают"},
+    {id:"atlas", name:"атлас", ic:"map", st:"ok", line:"синхронен · 103 узла"},
+  ];
+}
+const EDGES = [["surf","mouth"],["surf","brain"],["surf","hands"],["mouth","acp"],["brain","flash"],["hands","hire"],["acp","dsh"],["flash","ollama"],["hire","job"],["dsh","mem"],["ollama","mem"],["job","mem"],["mem","root"]];
+const LANES = ["поверхность","роли","исполнение","порты","память","корень"];
+
+function nodeHTML(n, gate=false){
+  const stWord = `<span class="sr">${ST_WORD[n.st]}. </span>`;
+  const name = n.stamp ? `<span class="node-name"><img src="${STAMP[n.stamp]}" alt="" class="node-stamp">${n.name}</span>` : `<span class="node-name">${n.name}</span>`;
+  return `<button class="node is-${n.st}" data-node="${n.id}" aria-pressed="${UI.sel===n.id}"${gate?"":` style="grid-row:${n.lane+1};grid-column:${n.col+1}"`}>
+    ${stIco(n.st)}${name}<span class="node-line">${stWord}${esc(n.line)}</span></button>`;
+}
+
+function renderSostav(){
+  const s = S, ns = nodes(s), is = issues(s);
+  const offCount = ns.filter(n=>n.st==="off").length;
+  if (!is.length){
+    $("#svTitle").innerHTML = `${stIco("ok")}Всё работает`;
+    $("#svSub").textContent = `12 частей на карте · ${offCount?`${offCount} выключено вами · `:""}проверено ${s.checked} · обновление каждые 4 с`;
+  } else {
+    const worst = is.find(i=>i.level==="down") || is[0];
+    $("#svTitle").innerHTML = `${stIco(worst.level)}${is.map(i=>esc(i.short)).join(" · ")}`;
+    $("#svSub").textContent = `остальное работает · ${offCount?`${offCount} выключено вами · `:""}проверено ${s.checked} · обновление каждые 4 с`;
+  }
+  const map = $("#map");
+  map.querySelectorAll(".lane,.node").forEach(e=>e.remove());
+  LANES.forEach((l,i)=>map.insertAdjacentHTML("beforeend", `<div class="lane" style="grid-row:${i+1};grid-column:1">${l}</div>`));
+  ns.forEach(n=>map.insertAdjacentHTML("beforeend", nodeHTML(n)));
+  $("#gates").innerHTML = `<div aria-hidden="true"></div>` + gates(s).map(g=>nodeHTML(g,true)).join("");
+  $("#events").innerHTML = events(s).map(e=>`<li><span class="t">${e.t}</span>${toneIco(e.tone)}<span class="part">${e.part}</span><span class="txt" title="${esc(e.text)}">${esc(e.text)}</span></li>`).join("");
+  renderAside();
+  requestAnimationFrame(drawEdges);
+}
+function toneIco(t){ return {info:ico("info","st-off"), warn:ico("tri","st-warn"), down:ico("down","st-down"), ok:ico("check","st-ok"), off:ico("off","st-off")}[t]; }
+
+function drawEdges(){
+  const map = $("#map"), svg = $("#edges");
+  if (!map.offsetParent) return;
+  const mb = map.getBoundingClientRect(), ns = nodes(S);
+  const box = id => { const e = map.querySelector(`[data-node="${id}"]`); return e && e.getBoundingClientRect(); };
+  svg.innerHTML = EDGES.map(([a,b])=>{
+    const A1 = box(a), B1 = box(b); if (!A1||!B1) return "";
+    const x1 = A1.left + A1.width/2 - mb.left, y1 = A1.bottom - mb.top;
+    const x2 = B1.left + B1.width/2 - mb.left, y2 = B1.top - mb.top;
+    const ym = y1 + (y2-y1)/2;
+    const st = ns.find(n=>n.id===b).st;
+    const cls = st==="down"?"down":st==="warn"?"warn":st==="off"?"off":"";
+    return `<path class="${cls}" d="M${x1} ${y1}V${ym}H${x2}V${y2}"/>`;
+  }).join("");
+}
+
+function events(s){
+  const base = [
+    {t:"14:07:40", tone:"ok", part:"руки", text:"найм 7c1e40b2 подтверждён распиской — 3 результата из 3"},
+    {t:"14:03:12", tone:"info", part:"руки", text:"DSH: первый ответ за 6 с — воркер прогревался"},
+    {t:"13:58:02", tone:"info", part:"рот", text:"рот Grok, значит и мозг Grok — одна сессия"},
+    {t:"12:10:55", tone:"warn", part:"окно", text:"ход ещё идёт — Enter поставлен в очередь, остановить: Esc"},
+    {t:"11:52:00", tone:"info", part:"грант", text:"грант истёк и снят — запись вне песочницы закрыта"},
+  ];
+  if (s.name==="hire"||s.name==="grant") base.unshift({t:"14:37:30", tone:"info", part:"руки", text:"найм 3f9a1c2e начал работу · замок у рук"});
+  if (s.name==="grant") base.unshift({t:"14:41:02", tone:"warn", part:"грант", text:"руки просят запись вне песочницы: C:\\FractalOS\\config.toml"});
+  if (s.name==="degraded") return [
+    {t:"14:25:10", tone:"off", part:"руки", text:"руки выключены вами — найм не запустится, демон тёплый"},
+    {t:"14:21:47", tone:"down", part:"память", text:"нет связи — работа идёт без памяти"},
+    {t:"13:20:05", tone:"warn", part:"мозг", text:"у Grok кончилась квота — мозг на запасном Flash до 16:00"},
+    ...base.slice(2)];
+  return base;
+}
+
+function detail(id, s){
+  const n = nodes(s).concat(gates(s)).find(x=>x.id===id) || nodes(s)[0];
+  const d = {n, why:"", since:"", what:"", can:[], cannot:[], kv:[], actions:[], ev:[]};
+  const evOf = part => events(s).filter(e=>e.part===part).slice(0,4);
+  switch(id){
+    case "mouth":
+      d.what = "Единственный чат. С ним вы разговариваете; объёмную работу он передаёт в найм через бриф мозга.";
+      d.can = ["отвечать в одном чате", "передавать объём в найм — через бриф мозга", "отвечать на вопрос в сторону (/btw)"];
+      d.cannot = ["выдать себе грант", "нанять руки по вашему сырому тексту", "открыть второй чат"];
+      d.kv = [["основной","Grok"],["запасной","Flash — дешевле"],["сессия","ACP · 9c41d2e0"],["контекст","61 000 из 256 000"]];
+      d.actions = [["Переключить на Flash",""]]; d.ev = evOf("рот"); break;
+    case "brain":
+      d.what = "Суждение и вердикты. Пишет закрытый бриф для рук. У Flash две двери: «только ответ» и «только чтение».";
+      if (s.brain.st==="warn"){ d.why = "у Grok кончилась квота — вердикты даёт запасной Flash"; d.since = "с 13:20, до 16:00"; }
+      d.can = ["судить и давать вердикт", "писать закрытый бриф для рук", "читать код (дверь «только чтение»)"];
+      d.cannot = ["писать код", "писать в файлы"];
+      d.kv = [["хотели", "Grok"],["сейчас", s.brain.st==="warn"?"Flash":"Grok"],["слот","brain_axis"]];
+      d.actions = [[s.brain.on?"Выключить мозг":"Включить мозг",""],[s.brain.prov==="Grok"?"Мозг на Flash":"Мозг на Grok",""]]; d.ev = evOf("мозг"); break;
+    case "hands":
+      d.what = "Исполнитель по найму (DSH). Делает объём кода по закрытому брифу, в песочнице; для fractal-корней правит копию дерева и отдаёт дифф.";
+      if (!s.hands.on){ d.why = "выключены вами — найм не запустится; демон остаётся тёплым"; d.since = "с 14:25"; }
+      if (s.hands.busy){ d.why = "найм 3f9a1c2e · правка app/window.py · замок у рук"; d.since = "с 14:37"; }
+      d.can = ["делать объём по закрытому брифу", "писать в песочницу и в копию дерева", "запускать команды в корне проекта"];
+      d.cannot = ["писать вне песочницы без вашего гранта", "выдать себе грант", "писать, пока замок у другого — занято значит отказ, а не очередь", "трогать закон окна"];
+      d.kv = [["исполнитель","DSH · hire.py"],["модель","deepseek-v4.1-flash"],["каталоги","slim · lean · full"],["воркеры","3 тёплые · :11437–39"]];
+      d.actions = [[s.hands.on?"Выключить руки":"Включить руки","hands"]]; d.ev = evOf("руки"); break;
+    case "mem":
+      d.what = "Память продукта fractalmem: помнит, что было по проекту, и помогает рту.";
+      if (s.mem.st==="down"){ d.why = "нет связи — работа идёт без памяти"; d.since = "с 14:21"; }
+      d.kv = [["проект","fractalos"]];
+      d.actions = [["Выключить память",""]]; d.ev = evOf("память"); break;
+    case "grant":
+      d.what = "Разрешение на запись вне песочницы. Это окно времени: пока оно открыто, руки пишут без вопросов. Повторная выдача начинает срок заново.";
+      d.can = ["выдаёт только хозяин", "от 1 минуты до 8 часов"];
+      d.cannot = ["рот и руки выдать грант не могут"];
+      d.kv = [["политика", s.policy],["сейчас", s.grant.st==="open"?`до ${s.grant.until}`:s.grant.st==="asked"?"запрошен руками":"не выдан"],["файл","state/approve.grant"]];
+      d.actions = s.grant.st==="open" ? [["Снять грант","revoke"]] : [["Выдать на 30 минут","grant30"],["На 8 часов…",""]]; d.ev = evOf("грант"); break;
+    case "lock":
+      d.what = "Один писатель на дерево проекта. Пока кто-то пишет, второй не пишет: занято — значит отказ, а не очередь.";
+      d.kv = [["сейчас", s.lock.holder?s.lock.holder:"свободен"],["с", s.lock.since||"—"],["файл","runtime/hire-*.lock"]]; break;
+    case "teacher":
+      d.what = "Учитель — правила, а не персона. После найма решает, что закрепить в памяти и что поставить вам в очередь. Не модель и не отдельный чат.";
+      d.kv = [["правила","CLOSE-HIRE"],["последний раз","14:07 · найм 7c1e40b2"]]; break;
+    case "s1":
+      d.what = "Быстрые классификаторы: Needle — развилка найма, Jev — разметчик, Laya — локальная модель в резерве. Работают в тени: подсказывают, но не решают.";
+      d.kv = [["Needle","тень"],["Jev","тень"],["Laya","резерв"]]; break;
+    case "atlas":
+      d.what = "Карта частей системы, 103 узла. Правило: атлас следует за деревом.";
+      d.kv = [["узлов","103"],["сверено","сегодня 09:12"]]; break;
+    case "surf":
+      d.what = "Окно FractalOS: лента, композер, строка закона. Всё, что вы видите, собирается здесь.";
+      d.kv = [["сборка","Qt · PySide6"],["версия","wave 131"],["запущено","08:31"]]; break;
+    case "root":
+      d.what = "Корень текущего проекта. Для fractal-корней руки правят копию, а итог — дифф, который применяете вы.";
+      d.kv = [["путь","C:\\FractalOS"],["правило","копия и дифф"]]; break;
+    default:
+      d.what = {acp:"Сессия рта: Grok через ACP. Если рот — Flash, чат идёт через dsh mux.", flash:"Прокси мозга Flash (closer). Не путать с ollama.", hire:"Запуск найма: hire.py, каталоги slim · lean · full, приёмка по EXPECT.", dsh:"Мультиплексор DSH: чат Flash и hire/v1, воркеры рук.", ollama:"Шина моделей для рук и closer.", job:"Вход найма через mux: POST /job."}[id] || "";
+      d.kv = {flash:[["адрес","127.0.0.1:11435"],["проба","/ready · 0,4 с"],["ответ","41 мс"]], dsh:[["адрес","127.0.0.1:11436"],["проба","/ready · 0,4 с"],["воркеры","slim · lean · full"]], ollama:[["адрес","127.0.0.1:11434"],["проба","/ready · 0,4 с"],["ответ","12 мс"]], job:[["адрес",":11436/job"],["протокол","hire/v1"]], hire:[["запуск","hire.py"],["каталоги","slim · lean · full"],["очередь","пусто"],["параллельно","до 2"]], acp:[["сессия","9c41d2e0"],["провайдер","Grok"]]}[id] || [];
+  }
+  return d;
+}
+
+function renderAside(){
+  const d = detail(UI.sel, S), n = d.n;
+  const lead = n.stamp ? `<img src="${STAMP[n.stamp].replace("-32","-56")}" alt="">` : ico(n.ic||"map");
+  let h = `<div class="a-head">${lead}<h2>${n.name}</h2></div>
+  <div class="a-state is-${n.st}">${stIco(n.st)}${ST_WORD[n.st]}${d.since?`<span style="font-weight:400;color:var(--fg-2)">· ${d.since}</span>`:""}</div>`;
+  if (d.why) h += `<p class="a-why">${esc(d.why)}</p>`;
+  h += `<p class="a-what">${esc(d.what)}</p>`;
+  if (d.can.length) h += `<div class="a-sec"><h3>Может</h3><ul class="law-list can">${d.can.map(c=>`<li>${ico("check")}<span>${esc(c)}</span></li>`).join("")}</ul></div>`;
+  if (d.cannot.length) h += `<div class="a-sec"><h3>Не может</h3><ul class="law-list cannot">${d.cannot.map(c=>`<li>${ico("cross")}<span>${esc(c)}</span></li>`).join("")}</ul></div>`;
+  if (d.kv.length) h += `<div class="a-sec"><h3>Данные</h3><dl class="kv">${d.kv.map(([k,v])=>`<dt>${esc(k)}</dt><dd translate="no">${esc(v)}</dd>`).join("")}</dl></div>`;
+  if (d.actions.length) h += `<div class="a-sec"><h3>Действия</h3><div class="a-actions">${d.actions.map(([l,a])=>`<button class="btn" data-act="${a}">${esc(l)}</button>`).join("")}</div></div>`;
+  if (d.ev.length) h += `<div class="a-sec"><h3>Последние события</h3><ul class="a-events">${d.ev.map(e=>`<li><span class="t">${e.t.slice(0,5)}</span>${toneIco(e.tone)}<span>${esc(e.text)}</span></li>`).join("")}</ul></div>`;
+  $("#aside").innerHTML = h;
+}
+
+/* ---------- журнал сессий ---------- */
+const H = (id, o) => Object.assign({type:"hire", id}, o);
+function curSession(s){
+  if (s.name==="degraded") return {id:"cur", current:true, title:"Схемы хранения сессий", project:"fractalos", from:"13:18", to:"сейчас", mouth:"Grok", sid:"b2e7f014",
+    outcome:{tone:"down", text:"Вывод дан: папка на сессию. Память без связи с 14:21, руки выключены вами."},
+    items:[
+      {t:"13:18", type:"task", text:"Сравни две схемы хранения сессий: одна папка на сессию или один журнал на день. Код не нужен, нужен вывод."},
+      {t:"13:20", type:"event", tone:"warn", part:"мозг", text:"у Grok кончилась квота — мозг на запасном Flash до 16:00"},
+      {t:"13:21", type:"say", text:"Папка на сессию выигрывает: наймы, расписки и диффы уже живут по сессиям."},
+      {t:"14:21", type:"event", tone:"down", part:"память", text:"нет связи — работа идёт без памяти"},
+      {t:"14:25", type:"event", tone:"off", part:"руки", text:"руки выключены вами — найм не запустится"},
+      {t:"14:27", type:"task", text:"Сколько сейчас сессий в архиве?"},
+      {t:"14:27", type:"say", text:"В архиве 41 сессия, последняя — 19 сентября."}]};
+  const items = [
+    {t:"14:02", type:"task", text:"Строка статуса молчит: set_note пишет в поле, которое никто не читает. Найми руки: выведи последние заметки в строку над композером, с тоном."},
+    {t:"14:03", type:"brief", text:"5 пунктов · ждём 3 результата"},
+    H("7c1e40b2",{t:"14:03", cat:"lean", tree:"копия дерева fractalos", v:"ok", dur:"4:12",
+      expect:[["ok","app/statusline.py"],["ok","app/rail.py — set_note(text, tone)"],["ok","runtime/hire-out/7c1e40b2/done.md"]],
+      files:[["app/statusline.py",64,0,1],["app/rail.py",18,6],["app/window.py",4,15]], diff:"wait"}),
+    {t:"14:07", type:"say", text:"Руки закончили, расписка подтвердила все три результата. Дифф на 3 файла ждёт проверки."},
+    {t:"14:31", type:"task", text:"Посмотри, почему ghost виден только в режиме плана. Код не трогай, просто объясни."},
+    {t:"14:31", type:"say", text:"_on_ghost выходит, когда режим плана выключен. preview ничего не запускает — показывать его можно всегда."}];
+  let outcome = {tone:"warn", text:"Строка статуса готова в копии дерева — дифф ждёт вашей проверки."};
+  if (s.name==="hire" || s.name==="grant"){
+    items.push({t:"14:36", type:"task", text:"Найми: добавь тон ко всем оставшимся вызовам set_note в app/window.py."},
+      {t:"14:37", type:"brief", text:"4 пункта · ждём 2 результата"},
+      H("3f9a1c2e",{t:"14:37", cat:"lean", tree:"копия дерева fractalos", v:"live", live: s.grant.st==="asked"?"ждёт гранта":"идёт", dur:"3:41", files:[["app/window.py",22,22]]}));
+    if (s.grant.st==="asked") items.push({t:"14:41", type:"grant", text:"Руки просят запись вне песочницы — решение за вами", sub:"C:\\FractalOS\\config.toml · найм 3f9a1c2e"});
+    outcome = {tone:"live", text:"Идёт найм 3f9a1c2e. Первый найм готов — его дифф ждёт вашей проверки."};
+  }
+  return {id:"cur", current:true, title:"Строка статуса: вывести set_note", project:"fractalos", from:"14:02", to:"сейчас", mouth:"Grok", sid:"9c41d2e0", outcome, items};
+}
+const J_TODAY = [
+  {id:"s-how", title:"Опечатка в справке /how", project:"fractalos", from:"11:40", to:"12:25", mouth:"Grok", sid:"77ab01c3",
+   outcome:{tone:"warn", text:"Опечатка исправлена в копии дерева — дифф ждёт вашей проверки."},
+   items:[
+    {t:"11:40", type:"task", text:"В справке /how написано «рельс слева», а рельс справа. Поправь текст."},
+    {t:"11:41", type:"brief", text:"2 пункта · ждём 1 результат"},
+    H("5d20aa91",{t:"11:41", cat:"slim", tree:"копия дерева fractalos", v:"ok", dur:"0:48", expect:[["ok","app/ops_live.py — текст /how"]], files:[["app/ops_live.py",4,1]], diff:"wait"}),
+    {t:"11:43", type:"say", text:"Готово: одна строка в app/ops_live.py. Дифф ждёт проверки."}]},
+  {id:"s-atlas", title:"Атлас: сверка путей", project:"fractalos", from:"09:15", to:"10:50", mouth:"Grok", sid:"4f0c9b12",
+   outcome:{tone:"ok", text:"Черновик путей готов. Первый найм не подтвердился, повторный — подтверждён; дифф не нужен: результат — только файл EXPECT."},
+   items:[
+    {t:"09:15", type:"task", text:"Сверь atlas-paths.json с деревом: какие пути в атласе устарели. В код не лезь, нужен черновик."},
+    {t:"09:16", type:"brief", text:"3 пункта · ждём 1 результат"},
+    H("e4b7d910",{t:"09:16", cat:"lean", tree:"копия дерева fractalos", v:"warn", dur:"6:30", why:"файла EXPECT нет: исполнитель записал черновик в runtime/hire-out/130/, а бриф ждал 131/", expect:[["fail","runtime/hire-out/131/atlas-paths.draft.json"]], files:[], diffNote:"дифф не нужен"}),
+    H("01a0cd66",{t:"09:24", cat:"lean", tree:"копия дерева fractalos", v:"ok", dur:"3:02", retryOf:"e4b7d910", expect:[["ok","runtime/hire-out/131/atlas-paths.draft.json"]], files:[], diffNote:"изменённых файлов нет — только EXPECT"}),
+    {t:"09:28", type:"say", text:"Устарели 7 путей из 103. Черновик — runtime/hire-out/131/atlas-paths.draft.json."}]}
+];
+const J_YEST = [
+  {id:"s-parser", title:"fractalmem: перенос парсера сессий", project:"fractalmem", from:"18:05", to:"19:30", mouth:"Grok", sid:"c81d44a0",
+   outcome:{tone:"ok", text:"Парсер перенесён, 24 теста зелёные. Первый найм упал на тесте, повторный прошёл; дифф вы применили в 19:26."},
+   items:[
+    {t:"18:05", type:"task", text:"Найми: перенеси парсер сессий из FractalOS в fractalmem, с тестами."},
+    {t:"18:06", type:"brief", text:"6 пунктов · ждём 4 результата"},
+    H("2c11e0f4",{t:"18:06", cat:"full", tree:"копия дерева fractalmem", v:"fail", rc:1, dur:"11:02", open:true, why:"упал тест test_parse_empty: пустой файл сессии даёт KeyError",
+      tail:["FAILED tests/test_sessions.py::test_parse_empty","KeyError: 'turns'","1 failed, 23 passed in 2.41s"],
+      expect:[["ok","fractalmem/sessions/parser.py"],["fail","tests/test_sessions.py — все зелёные"]], files:[["fractalmem/sessions/parser.py",142,0,1],["tests/test_sessions.py",88,0,1]], diffNote:"дифф не собран"}),
+    H("8b0e5a27",{t:"18:31", cat:"full", tree:"копия дерева fractalmem", v:"ok", dur:"9:40", retryOf:"2c11e0f4",
+      expect:[["ok","fractalmem/sessions/parser.py"],["ok","tests/test_sessions.py — все зелёные"],["ok","fractalmem/config.toml — раздел [sessions]"],["ok","runtime/hire-out/8b0e5a27/done.md"]],
+      files:[["fractalmem/sessions/parser.py",147,0,1],["tests/test_sessions.py",91,0,1],["fractalmem/config.toml",3,0]], diff:"applied", appliedAt:"19:26"}),
+    {t:"18:40", type:"grant", text:"Грант выдан вами на 30 минут", sub:"18:40–19:10 · найм 8b0e5a27 · запись C:\\fractalmem\\config.toml", closed:"истёк в 19:10"},
+    {t:"19:27", type:"say", text:"Парсер в fractalmem, 24 теста зелёные. Дифф применён."}]},
+  {id:"s-export", title:"Формат экспорта ленты", project:"fractalos", from:"15:20", to:"15:48", mouth:"Grok", sid:"a3390e57",
+   outcome:{tone:"ok", text:"Решили: markdown по умолчанию, JSON — по флагу. Наймов не было."},
+   items:[
+    {t:"15:20", type:"task", text:"Какой формат экспорта ленты удобнее: markdown или JSON?"},
+    {t:"15:21", type:"verdict", text:"Вердикт мозга (Flash, «только ответ»): markdown — для чтения, JSON — для машин; по умолчанию markdown."},
+    {t:"15:22", type:"say", text:"Делаю markdown по умолчанию, JSON — через /export --json. Код не трогал."}]},
+  {id:"s-hyg", title:"Чистка runtime/archive", project:"fractalos", from:"10:02", to:"11:10", mouth:"Flash", sid:"5e1b7c88",
+   outcome:{tone:"ok", text:"Архив почищен, освобождено 1,2 ГБ; дифф вы применили в 11:05."},
+   items:[
+    {t:"10:02", type:"task", text:"Найми: почисти runtime/archive — сессии старше 30 дней в zip."},
+    {t:"10:03", type:"brief", text:"3 пункта · ждём 2 результата"},
+    H("a91f3c20",{t:"10:03", cat:"slim", tree:"копия дерева fractalos", v:"ok", dur:"2:15", expect:[["ok","tools/hygiene.py — --zip-older 30"],["ok","runtime/hire-out/a91f3c20/done.md"]], files:[["tools/hygiene.py",12,3]], diff:"applied", appliedAt:"11:05"}),
+    {t:"11:08", type:"say", text:"Готово: 23 сессии упакованы, освобождено 1,2 ГБ."}]}
+];
+const J_MON = [
+  {id:"s-metr", title:"metrprod: отчёт по выработке", project:"metrprod", from:"16:30", to:"17:45", mouth:"Grok", sid:"d07a6e31",
+   outcome:{tone:"ok", text:"Отчёт собран. metrprod — внешний проект: руки писали в живое дерево по его правилам, дифф на проверку не нужен."},
+   items:[
+    {t:"16:30", type:"task", text:"Найми: собери отчёт по выработке за сентябрь в metrprod."},
+    {t:"16:31", type:"brief", text:"4 пункта · ждём 2 результата"},
+    H("c3d8e119",{t:"16:31", cat:"lean", tree:"живое дерево metrprod · свои правила", v:"ok", dur:"12:40", expect:[["ok","reports/output_2026_09.py"],["ok","runtime/hire-out/c3d8e119/done.md"]], files:[["reports/output_2026_09.py",210,0,1]], diffNote:"внешний проект — без приёмки"}),
+    {t:"16:45", type:"say", text:"Отчёт в reports/output_2026_09.py, итог — 1 214 позиций."}]},
+  {id:"s-mux", title:"Проверка mux после обновления", project:"fractalos", from:"12:00", to:"12:40", mouth:"Flash", sid:"90b2f5d4",
+   outcome:{tone:"warn", text:"DSH-рот не поднялся, работали на Flash-чате. После перезапуска mux всё отвечает."},
+   items:[
+    {t:"12:00", type:"task", text:"Обновил DSH. Проверь, что mux и воркеры отвечают."},
+    {t:"12:01", type:"event", tone:"down", part:"рот", text:"DSH-рот не поднялся — поднят Flash-чат"},
+    {t:"12:02", type:"event", tone:"warn", part:"порты", text:"dsh mux :11436 не ответил за 0,4 с"},
+    {t:"12:10", type:"say", text:"Перезапустил mux: slim, lean и full отвечают."},
+    {t:"12:12", type:"event", tone:"ok", part:"порты", text:"dsh mux отвечает · 3 воркера тёплые"}]}
+];
+function jDays(){
+  const tag = (arr, d) => arr.map(x=>Object.assign(x,{day:d}));
+  return [
+    {day:"Сегодня, 24 сентября", ss:tag([curSession(S), ...J_TODAY],"сегодня")},
+    {day:"Вчера, 23 сентября", ss:tag(J_YEST,"вчера")},
+    {day:"Понедельник, 22 сентября", ss:tag(J_MON,"22 сентября")}];
+}
+function plural(n,a,b,c){ const m10=n%10, m100=n%100; return m10===1&&m100!==11 ? a : m10>=2&&m10<=4&&(m100<12||m100>14) ? b : c; }
+function stats(ss){
+  const hires = ss.items.filter(i=>i.type==="hire"), n = v => hires.filter(h=>h.v===v).length;
+  const fail = n("fail");
+  return {hires, ok:n("ok"), warn:n("warn"), fail, live:n("live"),
+    wait: hires.filter(h=>h.diff==="wait").length,
+    grants: ss.items.filter(i=>i.type==="grant").length,
+    errors: ss.items.filter(i=>i.type==="event"&&i.tone==="down").length + fail};
+}
+const JF = [["all","Все"],["wait","Ждут проверки"],["err","Сбои"],["grant","Гранты"]];
+function jHay(ss){ return [ss.title, ss.project, ...ss.items.map(i=>[i.text, i.sub, i.id, i.why, ...(i.files||[]).map(f=>f[0]), ...(i.expect||[]).map(e=>e[1])].join(" "))].join(" ").toLowerCase(); }
+function jPass(ss, f){ const st = stats(ss); return f==="wait" ? st.wait>0 : f==="err" ? st.errors>0 : f==="grant" ? st.grants>0 : true; }
+function renderJournal(){
+  const days = jDays(), all = days.flatMap(d=>d.ss), q = UI.jq.trim().toLowerCase();
+  const found = ss => !q || jHay(ss).includes(q);
+  $("#jChips").innerHTML = JF.map(([k,l])=>`<button class="fchip" data-jf="${k}" aria-pressed="${UI.jf===k}">${l}${k==="all"?"":` <span class="n">${all.filter(ss=>found(ss)&&jPass(ss,k)).length}</span>`}</button>`).join("");
+  const shown = []; let h = "";
+  days.forEach(d=>{ const ss = d.ss.filter(x=>found(x)&&jPass(x,UI.jf)); if (!ss.length) return; shown.push(...ss); h += `<li class="jr-day" role="presentation">${d.day}</li>` + ss.map(srow).join(""); });
+  if (!shown.length) h = `<li class="jr-empty">${q ? `Ничего не нашлось по «${esc(UI.jq)}». Ищем в названиях, задачах, наймах и путях файлов.` : {wait:"Все диффы проверены — ждать нечего.", err:"Сессий со сбоями нет.", grant:"Гранты не выдавались."}[UI.jf]}</li>`;
+  else if (UI.jf==="all" && !q) h += `<li class="jr-more">Раньше на этой неделе — ещё 5 сессий.<button class="btn btn-quiet" disabled>Показать</button></li>`;
+  if (shown.length && !shown.some(x=>x.id===UI.js)) UI.js = shown[0].id;
+  $("#jList").innerHTML = h;
+  const sel = shown.find(x=>x.id===UI.js);
+  $("#jDetail").innerHTML = sel ? jDetail(sel) : `<div class="jd"><p class="jr-empty" style="padding-left:0">${q ? `По запросу «${esc(UI.jq)}» сессий нет.` : "В этом фильтре сессий нет."}</p><button class="btn" data-jreset="1">Показать все сессии</button></div>`;
+}
+function srow(ss){
+  const st = stats(ss);
+  const word = st.live ? `<span class="word w-teal">идёт найм</span>` : st.wait ? `<span class="word w-gold">ждёт проверки</span>` : st.errors ? `<span class="word w-red">был сбой</span>` : "";
+  const hires = st.hires.length ? `${st.hires.length} ${plural(st.hires.length,"найм","найма","наймов")}` : "без наймов";
+  return `<li><button class="srow" data-sess="${ss.id}" aria-current="${UI.js===ss.id}">${stIco(ss.outcome.tone)}<span class="s-title">${esc(ss.title)}</span><span class="s-time">${ss.from}–${ss.to}</span><span class="s-meta"><span>${ss.project}${ss.current?" · текущая":""} · ${hires}</span>${word?`<span>·</span>${word}`:""}</span></button></li>`;
+}
+function jDetail(ss){
+  const st = stats(ss);
+  return `<div class="jd">
+    <h1 class="jd-h">${esc(ss.title)}</h1>
+    <p class="jd-sub"><span>${ss.project}</span><span>·</span><span>${ss.day}, ${ss.from} — ${ss.to}</span><span>·</span><span>рот ${ss.mouth}</span><span class="mono">сессия ${ss.sid}</span></p>
+    <div class="jd-actions">${ss.current ? `<span class="jd-here">${ico("info","st-off")}Вы сейчас в этой сессии</span>` : `<button class="btn" data-open-talk="${ss.id}">${ico("arrow")}Открыть в разговоре</button>`}<button class="btn btn-quiet" data-export="${ss.id}">Экспорт в markdown</button>${ss.current ? "" : `<button class="btn btn-quiet" data-archive="${ss.id}">В архив…</button>`}</div>
+    <div class="jd-end is-${ss.outcome.tone}">${stIco(ss.outcome.tone)}<div><div class="lbl">Чем кончилось</div><p>${esc(ss.outcome.text)}</p></div></div>
+    <p class="jd-facts">${factsLine(st)}</p>
+    <h2>Хронология</h2>
+    <ol class="tl">${ss.items.map(tlItem).join("")}</ol>
+  </div>`;
+}
+function factsLine(st){
+  const parts = [];
+  const n = st.hires.length;
+  if (!n) parts.push("Наймов не было");
+  else {
+    const bits = [];
+    if (st.ok) bits.push(`${st.ok} ${plural(st.ok,"подтверждён","подтверждены","подтверждены")}`);
+    if (st.warn) bits.push(`${st.warn} без подтверждения`);
+    if (st.fail) bits.push(`${st.fail} не ${plural(st.fail,"дошёл","дошли","дошли")}`);
+    if (st.live) bits.push(`${st.live} идёт`);
+    parts.push(`${n} ${plural(n,"найм","найма","наймов")}` + (n>1 || !st.ok ? `: ${bits.join(", ")}` : ", подтверждён"));
+  }
+  if (st.wait) parts.push(`${st.wait} ${plural(st.wait,"дифф ждёт","диффа ждут","диффов ждут")} проверки`);
+  parts.push(st.grants ? `грант выдавался ${st.grants} ${plural(st.grants,"раз","раза","раз")}` : "грантов не было");
+  parts.push(st.errors ? `${st.errors} ${plural(st.errors,"сбой","сбоя","сбоев")}` : "сбоев не было");
+  return parts.join(" · ") + ".";
+}
+function tlItem(i){
+  const who = {
+    task:`<span class="who owner-who">${ico("owner")}хозяин</span>`,
+    brief:`<span class="who">${stamp("brain")}мозг</span>`, verdict:`<span class="who">${stamp("brain")}мозг</span>`,
+    say:`<span class="who">${stamp("mouth",11)}рот</span>`, hire:`<span class="who">${stamp("hands")}руки</span>`,
+    grant:`<span class="who">${ico("key","st-warn")}грант</span>`, event:`<span class="who">окно</span>`}[i.type];
+  let b = "";
+  if (i.type==="task") b = `<p class="tl-task">${esc(i.text)}</p>`;
+  if (i.type==="brief") b = `<p class="tl-meta">Бриф для рук · ${esc(i.text)}</p>`;
+  if (i.type==="verdict" || i.type==="say") b = `<p class="tl-say">${esc(i.text)}</p>`;
+  if (i.type==="event") b = `<p class="tl-ev">${toneIco(i.tone)}<span><b>${i.part}:</b> ${esc(i.text)}</span></p>`;
+  if (i.type==="grant") b = `<div class="tl-grant"><b>${esc(i.text)}</b><span class="mono" translate="no">${esc(i.sub)}</span>${i.closed?`<span class="meta">${esc(i.closed)}</span>`:""}</div>`;
+  if (i.type==="hire") b = jHire(i);
+  return `<li><span class="t">${i.t}</span><span class="tl-who">${who}</span><div class="tl-body">${b}</div></li>`;
+}
+const VERD = {ok:["check","Подтверждено распиской"], warn:["warn","Готово, но не подтверждено"], fail:["cross","Не дошёл"], live:["live","Идёт"]};
+function jHire(h){
+  if (DOVR[h.id]) h = Object.assign({}, h, {diff: DOVR[h.id].st, appliedAt: "14:52"});
+  const [ic, word] = VERD[h.v], cls = h.v==="live" && h.live==="ждёт гранта" ? "st-warn" : {ok:"st-ok",warn:"st-warn",fail:"st-down",live:"st-live"}[h.v];
+  const vt = h.v==="live" ? (h.live==="ждёт гранта" ? "Ждёт вашего гранта" : "Идёт") : word;
+  const files = h.files || [], add = files.reduce((a,f)=>a+f[1],0), del = files.reduce((a,f)=>a+f[2],0);
+  const diff = h.diff==="wait" ? `<span class="w-gold">дифф ждёт проверки</span>` : h.diff==="applied" ? `<span class="w-green">дифф применён в ${h.appliedAt}</span>` : h.diff==="rejected" ? `<span class="w-red">дифф отклонён</span>` : h.diffNote ? `<span>${esc(h.diffNote)}</span>` : "";
+  const expect = (h.expect||[]).length ? `<p class="rows-h">Ждали — получили:</p><ul class="rows">${h.expect.map(([k,p])=>`<li>${ico(k==="ok"?"check":"cross", k==="ok"?"st-ok":"st-down")}<span class="path" translate="no">${esc(p)}</span></li>`).join("")}</ul>` : "";
+  const fl = files.length ? `<p class="rows-h">Изменены:</p><ul class="rows">${files.map(([p,a,d,n])=>`<li>${ico("edit","st-off")}<span class="path" translate="no">${esc(p)}</span>${n?`<span class="new">новый</span>`:""}<span class="num"><span class="plus">+${a}</span>${d?` <span class="minus">−${d}</span>`:""}</span></li>`).join("")}</ul>` : "";
+  return `<details class="jh"${h.open?" open":""}><summary class="jh-sum">${ico("chev","chev")}
+    <span class="jh-l1">${ico(ic,cls)}<b class="${h.v==="live" && h.live==="ждёт гранта" ? "v-warn" : "v-"+h.v}">${h.retryOf?"Повтор. ":""}${vt}</b></span>
+    <span class="jh-l2">${files.length?`${files.length} ${plural(files.length,"файл","файла","файлов")} <span class="plus">+${add}</span>${del?` <span class="minus">−${del}</span>`:""} · `:""}${diff?diff+" · ":""}${h.dur?h.dur+" · ":""}<span class="mono" translate="no">${h.id}</span></span></summary>
+    <div class="jh-body"><p class="rows-h">${h.cat} · ${h.tree}${h.retryOf?` · повтор найма ${h.retryOf}, тот же бриф`:""}${h.rc!=null?` · код возврата ${h.rc}`:""}</p>${h.why?`<p class="jh-why"><b>Почему:</b> ${esc(h.why)}</p>`:""}${expect}${fl}${h.tail?`<p class="rows-h">Хвост лога:</p><pre class="tail" translate="no">${h.tail.map(esc).join("\n")}</pre>`:""}${h.diff==="wait"?`<div class="jh-act"><button class="btn" data-diff="${h.id}">${ico("diff")}Проверить дифф</button></div>`:""}</div></details>`;
+}
+function jMove(dir){
+  const rows = [...document.querySelectorAll("#jList .srow")], i = rows.findIndex(r=>r.dataset.sess===UI.js);
+  const next = rows[Math.max(0, Math.min(rows.length-1, i+dir))]; if (!next) return;
+  UI.js = next.dataset.sess; renderJournal(); syncHash();
+  const el = document.querySelector(`#jList [data-sess="${UI.js}"]`); if (el){ el.focus(); el.scrollIntoView({block:"nearest"}); }
+}
+
+/* ---------- дифф на проверку ---------- */
+const DIFFS = [
+  {id:"7c1e40b2", st:"wait", when:"сегодня 14:07", title:"Строка статуса: вывести set_note", project:"fractalos", root:"C:\\FractalOS", tree:"копия дерева fractalos", receipt:"подтверждена, 3 из 3",
+   ask:"Строка статуса молчит: set_note пишет в поле, которое никто не читает. Выведи последние заметки в строку над композером, с тоном.",
+   did:"Новый виджет StatusLine над композером показывает последнюю заметку каждого тона. set_note получил второй аргумент tone; старые вызовы работают как «инфо».",
+   files:[
+    {path:"app/statusline.py", kind:"new", add:64, del:0, hunks:[{h:"@@ -0,0 +1,64 @@", more:38, lines:
+`+"""Строка статуса над композером: последняя заметка каждого тона."""
++from __future__ import annotations
++
++from dataclasses import dataclass
++from time import monotonic
++
++from PySide6.QtCore import QTimer
++from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
++
++from app import theme
++
++TONES = ("info", "warn", "fail")
++INFO_TTL_S = 8.0
++
++
++@dataclass
++class Note:
++    text: str
++    tone: str
++    at: float
++
++
++class StatusLine(QWidget):
++    """Одна строка на тон: сбой и предупреждение держатся, инфо гаснет через 8 с."""
++
++    def __init__(self, parent=None):`}]},
+    {path:"app/rail.py", kind:"mod", add:18, del:6, hunks:[{h:"@@ -1375,9 +1375,21 @@ class Rail(QWidget):", lines:
+`         self._mood = mood
+
+-    def set_note(self, text: str) -> None:
+-        """Status note API for window. No journal list on rail anymore."""
+-        self._note = text or ""
++    def set_note(self, text: str, tone: str = "info") -> None:
++        """Status note API for window: the last note of each tone goes to StatusLine."""
++        self._note = text or ""
++        if tone not in statusline.TONES:
++            tone = "info"
++        if self._status is not None:
++            self._status.push(self._note, tone)
++
++    def attach_status(self, line: "statusline.StatusLine") -> None:
++        """Window hands over the composer's StatusLine once it is built."""
++        self._status = line
+
+     def refresh(self, snap: dict) -> None:`}]},
+    {path:"app/window.py", kind:"mod", add:4, del:15, hunks:[{h:"@@ -2536,17 +2536,6 @@ def _on_approve_choice(self, choice):", lines:
+`         msg = self._owner_approve(arg)
+-        self.rail.set_note(msg)
+-        tone = "warn" if choice in ("once", "always") else "dim"
+-        self.pane.append_process(msg, phase="after", tone=tone)
+-        # Duplicate for the chatlog because rail notes never reach the screen.
+-        # Remove once the rail can show notes (see set_note).
+-        if choice in ("once", "always"):
+-            self.pane.append_note(msg)
++        self.rail.set_note(msg, tone="warn" if choice in ("once", "always") else "info")
+         self.pane.hide_approve()
+         self.composer.show_approve(False)`}]}]},
+  {id:"5d20aa91", st:"wait", when:"сегодня 11:43", title:"Опечатка в справке /how", project:"fractalos", root:"C:\\FractalOS", tree:"копия дерева fractalos", receipt:"подтверждена, 1 из 1",
+   ask:"В справке /how написано «рельс слева», а рельс справа. Поправь текст.",
+   did:"В тексте справки /how исправлено направление и добавлены две строки: где теперь сессии и где состояние частей.",
+   files:[{path:"app/ops_live.py", kind:"mod", add:4, del:1, hunks:[{h:"@@ -14,7 +14,10 @@ HOW_TEXT = (", lines:
+`     "Окно FractalOS: лента, композер снизу.\\n"
+-    "Сессии — рельс слева, не второй Grok.\\n"
++    "Сессии — вкладка «Журнал» (Ctrl+3), не второй Grok.\\n"
++    "Рельс справа: рот, мозг, руки и память.\\n"
++    "Состояние частей — вкладка «Состав» (Ctrl+2).\\n"
++    "Подсказки по окну — F1.\\n"
+     "Слэш-команды — / в начале строки.\\n"
+     "Вопрос в сторону — /btw.\\n"`}]}]},
+  {id:"8b0e5a27", st:"applied", at:"вчера в 19:26", when:"вчера 19:10", title:"fractalmem: перенос парсера сессий", project:"fractalmem", root:"C:\\fractalmem", tree:"копия дерева fractalmem", receipt:"подтверждена, 4 из 4",
+   ask:"Перенеси парсер сессий из FractalOS в fractalmem, с тестами.",
+   did:"Парсер перенесён в fractalmem/sessions/parser.py, 24 теста зелёные, в config.toml добавлен раздел [sessions].",
+   files:[{path:"fractalmem/config.toml", kind:"mod", add:3, del:0, hunks:[{h:"@@ -41,6 +41,9 @@ [bridge]", lines:
+` port = 8765
+ timeout_s = 4
+
++[sessions]
++root = "C:/FractalOS/runtime/sessions"
++archive_after_days = 30`}]},
+          {path:"fractalmem/sessions/parser.py", kind:"new", add:147, del:0, hunks:[{h:"@@ -0,0 +1,147 @@", more:141, lines:
+`+"""Разбор файлов сессии рта: ходы, наймы, расписки."""
++from __future__ import annotations
++
++import json
++from pathlib import Path
++`}]},
+          {path:"tests/test_sessions.py", kind:"new", add:91, del:0, hunks:[{h:"@@ -0,0 +1,91 @@", more:88, lines:
+`+from fractalmem.sessions.parser import parse_session
++
++`}]}]},
+  {id:"a91f3c20", st:"applied", at:"вчера в 11:05", when:"вчера 10:58", title:"Чистка runtime/archive", project:"fractalos", root:"C:\\FractalOS", tree:"копия дерева fractalos", receipt:"подтверждена, 2 из 2",
+   ask:"Почисти runtime/archive — сессии старше 30 дней в zip.",
+   did:"В tools/hygiene.py добавлен флаг --zip-older: старые сессии упаковываются, папки удаляются только после проверки архива.",
+   files:[{path:"tools/hygiene.py", kind:"mod", add:12, del:3, hunks:[{h:"@@ -88,6 +88,15 @@ def main(argv=None):", lines:
+`     ap.add_argument("--dry-run", action="store_true")
+-    ap.add_argument("--older", type=int, default=0)
++    ap.add_argument("--zip-older", type=int, default=0,
++                    help="упаковать сессии старше N дней в zip")`}]}]},
+  {id:"6e04c2d1", st:"rejected", at:"22 сентября в 15:40", why:"ломает поиск по старым логам — пусть остаётся thinking", when:"22 сентября 15:31", title:"thinking → «мысль» в ленте", project:"fractalos", root:"C:\\FractalOS", tree:"копия дерева fractalos", receipt:"подтверждена, 1 из 1",
+   ask:"Замени английское thinking в ленте на русское «мысль».",
+   did:"Строка-заголовок мысли в ленте теперь «мысль …» вместо «thinking …».",
+   files:[{path:"app/chatpane.py", kind:"mod", add:1, del:1, hunks:[{h:"@@ -82,5 +82,5 @@", lines:
+` GLYPH_OK = "✓"
+-THINK_HEAD = "thinking …"
++THINK_HEAD = "мысль …"
+ THINK_MORE = "… развернуть"`}]}]}
+];
+let DOVR = {};
+function dget(id){ const d = DIFFS.find(x=>x.id===id); return d ? Object.assign({}, d, DOVR[id] || {}) : null; }
+function dlist(){ return DIFFS.map(d=>dget(d.id)); }
+function waitCount(){ return dlist().filter(d=>d.st==="wait").length; }
+const sumAdd = d => d.files.reduce((a,f)=>a+f.add,0), sumDel = d => d.files.reduce((a,f)=>a+f.del,0);
+function hunkRows(h){
+  const m = /@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(h.h); let o = +m[1], n = +m[2];
+  const hm = /@@ -\d+(?:,(\d+))? \+(\d+)(?:,(\d+))? @@ ?(.*)/.exec(h.h), from = +hm[2], len = hm[3]==null ? 1 : +hm[3];
+  const where = (hm[1]==="0" ? "новый файл · " : "") + (len>1 ? `строки ${from}–${from+len-1}` : `строка ${from}`);
+  const rows = [`<tr class="hk"><td colspan="3" title="${esc(h.h)}">${where}${hm[4]?` · <span class="mono" translate="no">${esc(hm[4])}</span>`:""}</td></tr>`];
+  h.lines.split("\n").forEach(line=>{
+    const t = "+- ".includes(line[0]) && line.length ? line[0] : " ";
+    const code = line.slice(1);
+    const on = t==="+" ? "" : o++, nn = t==="-" ? "" : n++;
+    rows.push(`<tr class="${t==="+"?"ad":t==="-"?"dl":"cx"}"><td class="ln">${on}</td><td class="ln">${nn}</td><td class="cd" translate="no"><span class="mk" aria-hidden="true">${t==="+"?"+":t==="-"?"−":" "}</span>${esc(code)}</td></tr>`);
+  });
+  if (h.more) rows.push(`<tr class="more"><td colspan="3">… ещё ${h.more} ${plural(h.more,"строка","строки","строк")} этого файла. <button class="linkbtn" disabled>Показать</button></td></tr>`);
+  return rows.join("");
+}
+function renderDiff(){
+  const all = dlist(), wait = all.filter(d=>d.st==="wait"), done = all.filter(d=>d.st!=="wait");
+  S.diffs = wait.length;
+  if (!all.some(d=>d.id===UI.dsel)) UI.dsel = (wait[0] || all[0]).id;
+  const item = d => {
+    const st = d.st==="wait" ? "warn" : d.st==="applied" ? "ok" : "down";
+    const when = d.st==="wait" ? `ждёт с ${d.when}` : d.st==="applied" ? `применён ${d.at}` : `отклонён ${d.at}`;
+    return `<li><button class="dq" data-dsel="${d.id}" aria-current="${UI.dsel===d.id}">${stIco(st)}<span class="dq-t">${esc(d.title)}</span><span class="dq-m">${d.project} · ${d.files.length} ${plural(d.files.length,"файл","файла","файлов")} <span class="plus">+${sumAdd(d)}</span> <span class="minus">−${sumDel(d)}</span></span><span class="dq-m">${when}</span></button></li>`;
+  };
+  $("#dfWaitN").textContent = wait.length;
+  $("#dfQueue").innerHTML = wait.length ? wait.map(item).join("") : `<li class="jr-empty">Все диффы проверены — ждать нечего.</li>`;
+  $("#dfDone").innerHTML = done.map(item).join("");
+  $("#dfMain").innerHTML = diffMain(dget(UI.dsel));
+}
+function diffMain(d){
+  const n = d.files.length, viewed = d.files.filter(f=>UI.dview[d.id+":"+f.path]).length;
+  const busy = !!S.lock.holder;
+  let head;
+  if (d.st==="wait"){
+    head = `<div class="dm-actions">
+      <button class="btn btn-primary" data-dact="apply"${busy?" disabled":""}>${ico("check")}Применить в ${d.root}</button>
+      <button class="btn" data-dact="reject" aria-expanded="${!!UI.drej}">Отклонить…</button>
+      <button class="btn btn-quiet" data-dact="retry">Повторить найм тем же брифом</button></div>
+      <p class="dm-cons">${busy
+        ? `${ico("lock","st-live")}<span>Сейчас в проект пишут руки (найм 3f9a1c2e). Писать может только один — применить можно, когда они закончат или вы снимете работу.</span>`
+        : `${ico("info","st-off")}<span>«Применить» запишет изменения из копии в живое дерево ${d.root}. Сейчас туда никто не пишет.</span>`}</p>`
+      + (UI.drej ? `<div class="dm-rej"><label for="rejWhy">Что не так? Необязательно: текст уйдёт в бриф, если отклонить и повторить найм.</label>
+        <textarea id="rejWhy" rows="2" placeholder="Например: app/window.py не трогать, только rail.py…"></textarea>
+        <div class="dm-actions"><button class="btn btn-danger" data-dact="rejectgo">Отклонить</button><button class="btn" data-dact="rejectretry">Отклонить и повторить найм с этой правкой</button><button class="btn btn-quiet" data-dact="rejcancel">Отмена</button></div></div>` : "");
+  } else if (d.st==="applied"){
+    head = `<p class="dm-done">${ico("check","st-ok")}<span>Применён вами ${d.at} — изменения записаны в ${d.root}.</span></p>`;
+  } else {
+    head = `<p class="dm-done">${ico("cross","st-down")}<span>Отклонён вами ${d.at}${d.why?`: «${esc(d.why)}»`:""}.</span></p>`;
+  }
+  const open = d.st==="wait";
+  const idx = d.files.map((f,i)=>`<li><button data-dfile="${i}">${open && UI.dview[d.id+":"+f.path]?ico("check","st-ok"):ico("edit","st-off")}<span translate="no">${f.path}</span>${f.kind==="new"?`<span class="new">новый</span>`:""}<span class="num"><span class="plus">+${f.add}</span>${f.del?` <span class="minus">−${f.del}</span>`:""}</span></button></li>`).join("");
+  return `<div class="dm">
+    <div class="dm-top"><h1 class="dm-h">${esc(d.title)}</h1>
+      <p class="dm-sub">${d.project} · найм <span class="mono">${d.id}</span> · ${d.tree} · расписка ${d.receipt}</p>${head}</div>
+    <div class="dm-ctx"><div><div class="lbl">Что просили</div><p>${esc(d.ask)}</p></div><div><div class="lbl">Что сделали руки</div><p>${esc(d.did)}</p></div></div>
+    <div class="dm-fh"><span><b>${n} ${plural(n,"файл","файла","файлов")}</b> · <span class="plus">+${sumAdd(d)}</span> <span class="minus">−${sumDel(d)}</span></span>${d.st==="wait" ? `<span>просмотрено <b>${viewed} из ${n}</b></span>` : ""}<span class="keys"><kbd>]</kbd> следующий файл · <kbd>[</kbd> предыдущий${d.st==="wait" ? ` · <kbd>V</kbd> просмотрено` : ""}</span></div>
+    <ul class="dm-index">${idx}</ul>
+    ${d.files.map((f,i)=>{ const key = d.id+":"+f.path, v = open && !!UI.dview[key];
+      return `<section class="fs${v?" is-viewed":""}" id="fs-${i}" aria-label="${f.path}"><header class="fs-h"><span class="path" translate="no">${f.path}</span>${f.kind==="new"?`<span class="new">новый</span>`:""}<span class="num"><span class="plus">+${f.add}</span>${f.del?` <span class="minus">−${f.del}</span>`:""}</span>${open ? `<label class="fs-v"><input type="checkbox" data-viewed="${key}"${v?" checked":""}>просмотрено</label>` : ""}</header>${v?"":`<div class="fs-b"><table class="dt">${f.hunks.map(hunkRows).join("")}</table></div>`}</section>`; }).join("")}
+  </div>`;
+}
+function dAct(a){
+  const d = dget(UI.dsel), n = d.files.length, viewed = d.files.filter(f=>UI.dview[d.id+":"+f.path]).length;
+  if (a==="apply"){
+    if (viewed < n && !confirm(`Вы просмотрели ${viewed} из ${n} ${plural(n,"файла","файлов","файлов")}. Применить все изменения в ${d.root}?`)) return;
+    DOVR[d.id] = {st:"applied", at:"сегодня в 14:52"};
+    UI.extra.push(T.note("14:52","ok",`дифф найма ${d.id} применён вами: ${n} ${plural(n,"файл","файла","файлов")} записаны в ${esc(d.root)}`));
+  }
+  if (a==="reject"){ UI.drej = !UI.drej; }
+  if (a==="rejcancel"){ UI.drej = false; }
+  if (a==="rejectgo" || a==="rejectretry"){
+    const why = ($("#rejWhy") && $("#rejWhy").value.trim()) || "";
+    DOVR[d.id] = {st:"rejected", at:"сегодня в 14:52", why};
+    UI.drej = false;
+    UI.extra.push(T.note("14:52","info", a==="rejectgo" ? `дифф найма ${d.id} отклонён вами${why?`: «${esc(why)}»`:""} — живое дерево не тронуто` : `дифф найма ${d.id} отклонён; прототип: здесь запустился бы повторный найм с вашей правкой`));
+  }
+  if (a==="retry"){
+    if (!confirm("Отклонить этот дифф и запустить найм заново тем же брифом?")) return;
+    DOVR[d.id] = {st:"rejected", at:"сегодня в 14:52", why:"повтор найма тем же брифом"};
+    UI.extra.push(T.note("14:52","info",`дифф найма ${d.id} отклонён; прототип: здесь запустился бы повторный найм тем же брифом`));
+  }
+  renderDiff(); renderTabs(); renderJournal(); renderLedger(); renderActivity(); syncHash();
+}
+function dGoFile(i){
+  const d = dget(UI.dsel); UI.dfile = Math.max(0, Math.min(d.files.length-1, i));
+  const el = document.getElementById("fs-"+UI.dfile); if (el) el.scrollIntoView({block:"start"});
+}
+function openDiff(id){ UI.dsel = id; UI.drej = false; if (UI.side) { UI.side = "diff"; renderViews(); } else setView("diff"); renderDiff(); syncHash(); }
+
+/* ---------- подсказки по окну (F1) ---------- */
+const HELP_COMMON = [
+  ["#projBtn", "Проект", "В каком корне работают руки. Сменить — Ctrl+P.", "below"],
+  ["#tabs", "Виды", "Разговор, Состав, Журнал, Дифф — Ctrl+1…4. Маленькая кнопка справа от названия открывает вид рядом с разговором.", "below"],
+  ["#law", "Строка состояния", "Всё ли работает, кто отвечает, открыт ли грант и кто сейчас пишет в проект. Нажмите на любую часть — откроется её карточка.", "below-mid"],
+  ["#palBtn", "Команды", "Всё, что умеет окно, — с клавиатуры: Ctrl+K.", "below-right"]];
+const HELP_VIEW = {
+  talk: [["#ledgerScroll", "Лента разговора", "Кто что сказал и сделал: хозяин, рот, мозг, руки, окно. Найм рук свёрнут в итог — нажмите, чтобы увидеть подробности.", "inside-low"],
+         ["#act", "Строка активности", "Тихо или идёт работа. Маскот моргает в покое и крутится при работе. «Стоп» снимает работу рук.", "above"],
+         ["#route", "Куда уйдёт Enter", "Ещё до отправки видно: разговор с ртом, найм через мозг, очередь или отказ.", "above"]],
+  journal: [[".jr-tools", "Поиск и фильтры", "Найти сессию по задаче, найму или файлу. Фильтры — что ждёт вашей проверки, где был сбой, где выдавался грант.", "below"],
+            ["#jList", "Сессии по дням", "Значок слева — чем кончилось: зелёный — закрыто, золотой — ждёт вас, красный — сбой, бирюзовый — идёт.", "inside-low"],
+            [".jd-end", "Чем кончилось", "Итог сессии одной фразой.", "below"],
+            [".tl", "Хронология", "Что было по порядку. Найм раскрывается щелчком.", "inside"]],
+  diff: [[".df-list", "Очередь", "Что ждёт вашей проверки и что уже проверено: применено или отклонено.", "inside-low"],
+         [".dm-actions", "Решение", "Применить в живое дерево, отклонить с объяснением или повторить найм. Под кнопками — что именно произойдёт.", "right"],
+         [".dm-ctx", "Зачем это", "Что вы просили и что сделали руки — чтобы проверять смысл, а не только строки.", "below"],
+         [".fs", "Файлы", "Зелёным — добавлено, красным — убрано. «Просмотрено» сворачивает файл и считает прогресс.", "inside"]],
+  sostav: [["#svTitle", "Итог", "Всё ли работает, а если нет — что и почему.", "below"],
+           ["#map", "Карта частей", "Из чего состоит система и как части связаны. Цвет и значок — состояние.", "inside"],
+           ["#aside", "Карточка части", "Что это, что может и чего не может, данные и действия.", "inside"]],
+};
+function showHelp(){
+  UI.help = true; $("#help").hidden = false;
+  const view = UI.side ? "talk" : UI.view;
+  const marks = HELP_COMMON.concat(HELP_VIEW[view] || []);
+  const W = innerWidth, Hh = innerHeight;
+  $("#helpMarks").innerHTML = marks.map(([sel, t, txt, pos], i)=>{
+    const el = $(sel); if (!el || !el.offsetParent) return "";
+    const r = el.getBoundingClientRect();
+    let st = "";
+    if (pos==="below") st = `left:${Math.min(r.left, W-316)}px;top:${r.bottom+10}px`;
+    if (pos==="below-mid") st = `left:${Math.min(r.left+Math.min(r.width/2, 470), W-316)}px;top:${r.bottom+10}px`;
+    if (pos==="right"){ const lr = (el.lastElementChild || el).getBoundingClientRect(); st = `left:${Math.min(lr.right+16, W-316)}px;top:${r.top-4}px`; }
+    if (pos==="below-right") st = `left:${Math.max(8, r.right-300)}px;top:${r.bottom+10}px`;
+    if (pos==="above") st = `left:${Math.min(r.left, W-316)}px;bottom:${Hh-r.top+10}px`;
+    if (pos==="inside") st = `left:${Math.min(r.left+16, W-316)}px;top:${r.top+16}px`;
+    if (pos==="inside-low") st = `left:${Math.min(r.left+12, W-316)}px;top:${r.top+Math.min(r.height*0.45, 260)}px`;
+    return `<div class="hm-box" style="left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px"><span class="hm-n hm-tag">${i+1}</span></div><div class="hm-lbl" style="${st}"><b><span class="hm-n">${i+1}</span>${t}</b>${txt}</div>`;
+  }).join("");
+  // подписи не должны налезать друг на друга: каждую, что задевает предыдущие, сдвигаем ниже
+  const placed = [];
+  document.querySelectorAll("#helpMarks .hm-lbl").forEach(el=>{
+    for (let guard = 0; guard < 12; guard++){
+      const r = el.getBoundingClientRect();
+      const hit = placed.find(q=>r.left < q.right && r.right > q.left && r.top < q.bottom && r.bottom > q.top);
+      if (!hit) break;
+      el.style.bottom = "auto"; el.style.top = (hit.bottom + 8) + "px";
+    }
+    placed.push(el.getBoundingClientRect());
+  });
+}
+function hideHelp(){ UI.help = false; $("#help").hidden = true; }
+function toggleHelp(){ UI.help ? hideHelp() : showHelp(); }
+
+/* ---------- виды ---------- */
+const VIEWS = [["talk","Разговор","1"],["sostav","Состав","2"],["journal","Журнал","3"],["diff","Дифф","4"]];
+function renderTabs(){
+  $("#tabs").innerHTML = VIEWS.map(([id,l,k])=>{
+    const side = SIDES.find(x=>x[0]===id);
+    const tab = `<button class="tab" data-view="${id}" aria-current="${(UI.side ? id==="talk" : UI.view===id) ? "page" : "false"}" title="${l} · Ctrl+${k}">${l}${id==="diff"&&S.diffs?` <span class="badge" aria-label="ждут проверки">${S.diffs}</span>`:""}</button>`;
+    const sb = side ? `<button class="tab-side" data-side="${id}" aria-pressed="${UI.side===id}" aria-label="${UI.side===id?"Закрыть":"Открыть рядом с разговором"}: ${side[2]}" title="${UI.side===id?"Закрыть":"Открыть рядом с разговором"}: ${side[2]}">${ico("split")}</button>` : "";
+    return `<div class="tabgrp">${tab}${sb}</div>`;
+  }).join("");
+}
+function renderViews(){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("is-on","is-left","is-right"));
+  const views = $("#views");
+  if (UI.side){
+    views.setAttribute("data-split","");
+    $("#v-talk").classList.add("is-on","is-left"); $("#v-"+UI.side).classList.add("is-on","is-right");
+    const name = SIDES.find(x=>x[0]===UI.side)[2];
+    $("#sideHead").innerHTML = `<b>${name}</b><button class="btn btn-quiet" data-full="${UI.side}">На весь экран</button><button class="btn btn-quiet" data-side="${UI.side}" aria-label="Закрыть: ${name}">${ico("close")}</button>`;
+  } else {
+    views.removeAttribute("data-split");
+    $("#v-"+UI.view).classList.add("is-on");
+  }
+  renderTabs(); renderBeside();
+  if (UI.side==="sostav" || (!UI.side && UI.view==="sostav")) requestAnimationFrame(drawEdges);
+}
+const SIDES = [["sostav","Состав","Состав и здоровье"],["journal","Журнал","Журнал сессий"],["diff","Дифф","Дифф на проверку"]];
+function renderBeside(){ /* кнопки «рядом» живут при вкладках — renderTabs */ }
+function setView(v){ UI.view=v; UI.side=null; renderViews(); syncHash(); }
+function toggleSide(id){
+  if (!id) id = UI.side || UI.lastSide;
+  UI.side = UI.side===id ? null : id;
+  if (UI.side){ UI.lastSide = UI.side; UI.view = "talk"; }
+  renderViews(); syncHash();
+}
+
+/* ---------- палитра ---------- */
+function commands(){
+  const c = [];
+  VIEWS.forEach(([id,l,k])=>c.push({g:"Виды", l: id==="sostav"?"Состав и здоровье":id==="journal"?"Журнал сессий":id==="diff"?"Дифф на проверку":l, k:"Ctrl+"+k, run:()=>setView(id)}));
+  SIDES.forEach(([id,l,full])=>c.push({g:"Рядом с разговором", l:(UI.side===id?"Закрыть: ":"Открыть рядом: ")+full, k: id===UI.lastSide?"Ctrl+\\":"", run:()=>toggleSide(id)}));
+  c.push({g:"Дифф", l:"Следующий дифф на проверку", k:"Ctrl+4", run:()=>{ const w = dlist().find(d=>d.st==="wait"); if (w) openDiff(w.id); else setView("diff"); }});
+  c.push({g:"Журнал", l:"Сессии, где дифф ждёт проверки", run:()=>{ UI.jf="wait"; setView("journal"); renderJournal(); }});
+  c.push({g:"Журнал", l:"Сессии со сбоями", run:()=>{ UI.jf="err"; setView("journal"); renderJournal(); }});
+  PROJECTS.forEach(p=>c.push({g:"Проект", l:p.id, sub:p.rule, k: p.id===S.project?"текущий":"", run:()=>{S.project=p.id; $("#projName").textContent=p.id; $("#projBtn").title = p.path + " · сменить проект: Ctrl+P";}}));
+  c.push({g:"Роли", l: S.hands.on?"Выключить руки":"Включить руки", run:()=>act("hands")});
+  c.push({g:"Роли", l: S.brain.prov==="Grok"?"Мозг на Flash":"Мозг на Grok", run:()=>{S.brain.prov = S.brain.prov==="Grok"?"Flash":"Grok"; S.brain.st="ok"; renderAll();}});
+  c.push({g:"Роли", l:"Рот на Flash (запасной)", run:()=>{}});
+  c.push({g:"Грант", l:"Выдать грант на 30 минут", run:()=>act("grant30")});
+  c.push({g:"Грант", l:"Снять грант", run:()=>act("revoke")});
+  c.push({g:"Сессия", l:"Новая сессия", k:"Ctrl+N", run:()=>{}});
+  c.push({g:"Сессия", l:"Вопрос в сторону", sub:"/btw — основной разговор не прерывается", run:()=>{}});
+  c.push({g:"Окно", l:"Подсказки: что здесь что", k:"F1", run:showHelp});
+  c.push({g:"Окно", l: document.body.dataset.motion==="on"?"Анимации: выключить":"Анимации: включить", run:()=>{document.body.dataset.motion = document.body.dataset.motion==="on"?"off":"on";}});
+  c.push({g:"Окно", l: document.body.dataset.ledgerFont==="sans"?"Лента: моноширинный шрифт":"Лента: пропорциональный шрифт", run:()=>{document.body.dataset.ledgerFont = document.body.dataset.ledgerFont==="sans"?"mono":"sans";}});
+  [["ok","всё работает"],["hire","идёт найм"],["grant","руки просят грант"],["degraded","оговорки и сбой"]].forEach(([id,l])=>c.push({g:"Прототип", l:"Сценарий: "+l, run:()=>load(id)}));
+  return c;
+}
+let palItems = [];
+function renderPalette(){
+  const q = $("#palInput").value.trim().toLowerCase();
+  let items = commands();
+  if (UI.palMode==="project") items = items.filter(i=>i.g==="Проект");
+  if (q) items = items.filter(i=>(i.g+" "+i.l+" "+(i.sub||"")).toLowerCase().includes(q));
+  palItems = items; UI.palIdx = Math.min(UI.palIdx, Math.max(items.length-1,0));
+  if (!items.length){ $("#palList").innerHTML = `<li class="pal-empty">Ничего не нашлось. Слэш-команды окна тоже можно набрать прямо в поле — начните с «/».</li>`; return; }
+  let g = "", h = "";
+  items.forEach((it,i)=>{
+    if (it.g!==g){ g=it.g; h+=`<li class="pal-g" role="presentation">${g}</li>`; }
+    h += `<li class="pal-item" role="option" id="pi${i}" data-i="${i}" aria-selected="${i===UI.palIdx}"><span>${esc(it.l)}</span>${it.sub?`<span class="sub">${esc(it.sub)}</span>`:""}${it.k?`<kbd>${esc(it.k)}</kbd>`:""}</li>`;
+  });
+  $("#palList").innerHTML = h;
+  $("#palInput").setAttribute("aria-activedescendant","pi"+UI.palIdx);
+  const sel = $("#pi"+UI.palIdx); if (sel) sel.scrollIntoView({block:"nearest"});
+}
+function openPalette(mode="all"){
+  UI.palette=true; UI.palMode=mode; UI.palIdx=0;
+  $("#scrim").hidden=false; $("#pal").hidden=false; $("#palInput").value="";
+  $("#palInput").placeholder = mode==="project" ? "Проект…" : "Команда, вид или проект…";
+  renderPalette(); $("#palInput").focus();
+}
+function closePalette(){ UI.palette=false; $("#scrim").hidden=true; $("#pal").hidden=true; syncHash(); }
+function runPalette(i){ const it = palItems[i]; if (!it) return; closePalette(); it.run(); }
+
+/* ---------- действия ---------- */
+function act(a){
+  if (a==="hands"){ S.hands.on=!S.hands.on; if(!S.hands.on) S.hands.busy=false; }
+  if (a==="grant30"){ S.grant={st:"open", until:"15:12"}; }
+  if (a==="grant480"){ if (confirm("Выдать грант на 8 часов? Руки будут писать вне песочницы без вопросов до 22:42. Снять можно в строке закона.")) S.grant={st:"open", until:"22:42"}; }
+  if (a==="deny"){ S.grant={st:"denied"}; }
+  if (a==="revoke"){ S.grant={st:"none"}; }
+  if (a==="stop"){ S.running=false; S.hands.busy=false; S.lock={holder:null}; UI.extra.push(T.note("14:42","info","работа снята вами — найм 3f9a1c2e остановлен, рот не тронут")); }
+  renderAll();
+}
+
+/* ---------- состояние в адресе (для снимков) ---------- */
+function syncHash(){
+  const p = new URLSearchParams(); p.set("s",S.name); p.set("v",UI.view); p.set("sel",UI.sel);
+  if (UI.side) p.set("side",UI.side);
+  if (UI.view==="journal" || UI.side==="journal"){ p.set("j",UI.js); if (UI.jf!=="all") p.set("jf",UI.jf); if (UI.jq) p.set("q",UI.jq); }
+  if (UI.view==="diff" || UI.side==="diff") p.set("d",UI.dsel);
+  history.replaceState(null,"","#"+p.toString());
+}
+function load(name){ S = scenario(name); UI.extra=[]; DOVR={}; UI.dview={}; UI.drej=false; $("#field").value = S.draft; autosize(); renderAll(); syncHash(); }
+function fromHash(){
+  const p = new URLSearchParams(location.hash.slice(1));
+  S = scenario(p.get("s")||"ok"); UI.extra=[];
+  UI.view = p.get("v")||"talk"; UI.sel = p.get("sel")||"hands"; UI.side = p.get("side")||null;
+  UI.js = p.get("j")||"cur"; UI.jf = p.get("jf")||"all"; UI.jq = p.get("q")||""; $("#jSearch").value = UI.jq;
+  DOVR = {}; UI.dview = {}; UI.dsel = p.get("d")||"7c1e40b2"; UI.drej = p.get("rej")==="1"; UI.dfile = 0;
+  if (p.get("dv")) { const d = dget(UI.dsel); d.files.slice(0, +p.get("dv")).forEach(f=>UI.dview[d.id+":"+f.path]=true); }
+  if (p.get("done")==="apply") { const d = dget(UI.dsel); d.files.forEach(f=>UI.dview[d.id+":"+f.path]=true); DOVR[d.id] = {st:"applied", at:"сегодня в 14:52"}; UI.extra.push(T.note("14:52","ok",`дифф найма ${d.id} применён вами: ${d.files.length} файла записаны в ${esc(d.root)}`)); }
+  document.body.dataset.ledgerFont = p.get("f")==="sans" ? "sans" : "mono";
+  $("#field").value = S.draft; autosize();
+  renderAll();
+  if (p.get("help")) requestAnimationFrame(showHelp); else if (UI.help) hideHelp();
+  if (p.get("palette")) openPalette(p.get("palette")==="project"?"project":"all");
+  else if (UI.palette) closePalette();
+}
+function renderAll(){ renderDiff(); renderLaw(); renderLedger(); renderActivity(); renderRoute(); renderSostav(); renderJournal(); renderViews(); }
+
+/* ---------- события ---------- */
+document.addEventListener("click", e=>{
+  const t = e.target.closest("[data-view],[data-go],[data-node],[data-act],[data-i],[data-side],[data-full],[data-sess],[data-jf],[data-open-talk],[data-export],[data-archive],[data-jreset],[data-diff],[data-dsel],[data-dact],[data-dfile]");
+  if (!t) return;
+  if (t.dataset.view){ setView(t.dataset.view); return; }
+  if (t.dataset.side){ toggleSide(t.dataset.side); return; }
+  if (t.dataset.full){ setView(t.dataset.full); return; }
+  if (t.dataset.go){ UI.sel=t.dataset.go; if (UI.side) UI.side="sostav"; else UI.view="sostav"; renderSostav(); renderViews(); syncHash(); return; }
+  if (t.dataset.node){ UI.sel=t.dataset.node; renderSostav(); syncHash(); return; }
+  if (t.dataset.sess){ UI.js=t.dataset.sess; renderJournal(); syncHash(); return; }
+  if (t.dataset.jf){ UI.jf=t.dataset.jf; renderJournal(); syncHash(); return; }
+  if (t.dataset.diff){ openDiff(t.dataset.diff); return; }
+  if (t.dataset.dsel){ UI.dsel = t.dataset.dsel; UI.drej = false; UI.dfile = 0; renderDiff(); syncHash(); $("#dfMain").scrollTop = 0; return; }
+  if (t.dataset.dact){ dAct(t.dataset.dact); return; }
+  if (t.dataset.dfile){ dGoFile(+t.dataset.dfile); return; }
+  if (t.dataset.jreset){ UI.jf="all"; UI.jq=""; $("#jSearch").value=""; renderJournal(); syncHash(); return; }
+  if (t.dataset.openTalk){ const ss = jDays().flatMap(d=>d.ss).find(x=>x.id===t.dataset.openTalk); UI.extra.push(T.note("14:44","info",`прототип: здесь открылась бы сессия «${esc(ss.title)}» — лента, композер и её наймы`)); setView("talk"); renderLedger(); return; }
+  if (t.dataset.export){ t.textContent = "Сохранено: session.md"; return; }
+  if (t.dataset.archive){ const ss = jDays().flatMap(d=>d.ss).find(x=>x.id===t.dataset.archive); confirm(`Убрать сессию «${ss.title}» в архив? Файлы на диске останутся, вернуть можно из архива.`); return; }
+  if (t.dataset.i!==undefined){ runPalette(+t.dataset.i); return; }
+  if (t.dataset.act!==undefined && t.dataset.act) act(t.dataset.act);
+});
+$("#projBtn").addEventListener("click", ()=>openPalette("project"));
+$("#helpBtn").addEventListener("click", toggleHelp);
+document.addEventListener("change", e=>{ const k = e.target.dataset && e.target.dataset.viewed; if (!k) return; UI.dview[k] = e.target.checked; const y = $("#dfMain").scrollTop; renderDiff(); $("#dfMain").scrollTop = y; });
+$("#help").addEventListener("click", hideHelp);
+$("#jSearch").addEventListener("input", e=>{ UI.jq = e.target.value; renderJournal(); syncHash(); });
+$("#jSearch").addEventListener("keydown", e=>{ if (e.key!=="Escape") return; e.stopPropagation(); if (e.target.value){ e.target.value=""; UI.jq=""; renderJournal(); syncHash(); } else e.target.blur(); });
+$("#jList").addEventListener("keydown", e=>{ if (e.key==="ArrowDown"){ e.preventDefault(); jMove(1); } if (e.key==="ArrowUp"){ e.preventDefault(); jMove(-1); } });
+$("#palBtn").addEventListener("click", ()=>openPalette("all"));
+$("#scrim").addEventListener("click", closePalette);
+$("#palInput").addEventListener("input", ()=>{UI.palIdx=0; renderPalette();});
+$("#palInput").addEventListener("keydown", e=>{
+  if (e.key==="ArrowDown"){ e.preventDefault(); UI.palIdx=Math.min(UI.palIdx+1, palItems.length-1); renderPalette(); }
+  if (e.key==="ArrowUp"){ e.preventDefault(); UI.palIdx=Math.max(UI.palIdx-1, 0); renderPalette(); }
+  if (e.key==="Enter"){ e.preventDefault(); runPalette(UI.palIdx); }
+});
+$("#field").addEventListener("input", ()=>{ autosize(); renderRoute(); });
+$("#field").addEventListener("keydown", e=>{
+  if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); $("#composer").requestSubmit(); }
+});
+$("#composer").addEventListener("submit", e=>{
+  e.preventDefault();
+  const v = $("#field").value.trim(); if (!v) return;
+  UI.extra.push(T.owner("14:44", `<p>${esc(v)}</p>`));
+  UI.extra.push(T.note("14:44","info","прототип: ответ рта здесь не моделируется"));
+  $("#field").value=""; autosize(); renderLedger(); renderRoute();
+});
+document.addEventListener("keydown", e=>{
+  if (e.key==="F1"){ e.preventDefault(); toggleHelp(); return; }
+  if (e.key==="Escape" && UI.help){ e.preventDefault(); hideHelp(); return; }
+  if (e.key==="Escape"){ if (UI.palette){ e.preventDefault(); closePalette(); return; } if (S.running){ act("stop"); return; } }
+  const typing = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+  if (!typing && !e.ctrlKey && !e.altKey && (UI.view==="diff" || UI.side==="diff")){
+    if (e.key==="]"||e.key==="ъ"){ e.preventDefault(); dGoFile(UI.dfile+1); return; }
+    if (e.key==="["||e.key==="х"){ e.preventDefault(); dGoFile(UI.dfile-1); return; }
+    if (e.key==="v"||e.key==="V"||e.key==="м"||e.key==="М"){ e.preventDefault(); const d = dget(UI.dsel), f = d.files[UI.dfile]; if (f && d.st==="wait"){ const k = d.id+":"+f.path; UI.dview[k] = !UI.dview[k]; renderDiff(); dGoFile(UI.dfile); } return; }
+  }
+  if (!e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (["1","2","3","4"].includes(k)){ e.preventDefault(); setView(VIEWS[+k-1][0]); }
+  else if (k==="k"){ e.preventDefault(); UI.palette?closePalette():openPalette("all"); }
+  else if (k==="p"||k==="з"){ e.preventDefault(); openPalette("project"); }
+  else if (k==="\\"){ e.preventDefault(); toggleSide(); }
+  else if ((k==="f"||k==="а") && (UI.view==="journal" || UI.side==="journal")){ e.preventDefault(); $("#jSearch").focus(); }
+});
+window.addEventListener("resize", ()=>requestAnimationFrame(()=>{ drawEdges(); if (UI.help) showHelp(); }));
+window.addEventListener("hashchange", fromHash);
+fromHash();
+document.fonts.ready.then(()=>{ toBottom(); drawEdges(); if (UI.help) requestAnimationFrame(showHelp); });
+</script>
+</body>
+</html>
