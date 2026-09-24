@@ -66,6 +66,11 @@ code,.mono{font-family:var(--font-mono)}
 .tab[aria-selected="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:2px;border-radius:2px 2px 0 0;background:var(--teal)}
 .badge{font:600 12px/18px var(--font-mono);color:var(--ink);background:var(--gold);border-radius:9px;padding:0 6px}
 .drag{flex:1;min-width:24px}
+.beside{display:flex;align-items:center;gap:2px;align-self:center;margin-right:10px;padding:2px;border:1px solid var(--line);border-radius:8px}
+.beside .lbl{padding:0 6px 0 8px;font-size:12px;color:var(--fg-3)}
+.beside button{display:flex;align-items:center;gap:6px;height:24px;padding:0 9px;border:0;border-radius:6px;background:none;color:var(--fg-2);font-size:13px}
+.beside button:hover{background:var(--bg-hover);color:var(--fg)}
+.beside button[aria-pressed="true"]{background:var(--select);color:var(--fg)}
 .pal-btn{display:flex;align-items:center;gap:8px;align-self:center;height:28px;margin-right:8px;padding:0 10px;border:1px solid var(--line);border-radius:var(--r-m);background:none;color:var(--fg-2);font-size:13px}
 .pal-btn:hover{border-color:var(--line-ctrl);color:var(--fg)}
 .winctl{display:flex}
@@ -88,11 +93,15 @@ code,.mono{font-family:var(--font-mono)}
 
 /* виды */
 .views{position:relative;display:grid;min-height:0;min-width:0}
-.views[data-split]{grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr)}
-.views[data-split]::before{content:"";grid-column:2;grid-row:1;background:var(--line)}
+.views[data-split]{grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+.views[data-split]::before{content:"";grid-column:2;grid-row:1 / 3;background:var(--line)}
+.side-head{display:none}
+.views[data-split] .side-head{display:flex;grid-column:3;grid-row:1;align-items:center;gap:6px;height:36px;padding:0 8px 0 16px;background:var(--bg-sunk);border-bottom:1px solid var(--line);font-size:13px;color:var(--fg-2)}
+.side-head b{font-weight:600;color:var(--fg);margin-right:auto}
+.side-head .btn{height:26px;padding:0 8px}
 .view{display:none;min-height:0;min-width:0;grid-row:1}
 .view.is-on{display:grid;animation:viewin var(--t) var(--ease)}
-.views[data-split] .view.is-left{grid-column:1} .views[data-split] .view.is-right{grid-column:3}
+.views[data-split] .view.is-left{grid-column:1;grid-row:1 / 3} .views[data-split] .view.is-right{grid-column:3;grid-row:2}
 @keyframes viewin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
 /* ---------- вид «Разговор» ---------- */
@@ -110,6 +119,7 @@ code,.mono{font-family:var(--font-mono)}
 .prose{font-size:15px;line-height:1.58;max-width:70ch}
 .prose p{margin:0 0 .55em} .prose p:last-child{margin-bottom:0}
 [data-ledger-font="mono"] .prose{font:400 14px/1.6 var(--font-mono);max-width:84ch}
+[data-ledger-font="mono"] .turn.owner .body{max-width:calc(84ch + 28px)}
 .prose code,.inl{font:400 .87em var(--font-mono);background:#28282D;border-radius:var(--r-s);padding:1px 5px;color:#DCDCE2}
 .turn.owner .who{color:var(--owner-text)}
 .turn.owner .who .ico{color:var(--owner)}
@@ -322,7 +332,7 @@ details[open]>.sum .ico.chev{transform:rotate(90deg)}
 @media (max-width:1280px){.v-sostav{grid-template-columns:minmax(0,1fr) 320px}.gates{grid-template-columns:88px repeat(3,minmax(0,1fr));row-gap:12px}.gates .node:nth-child(n+5){grid-column:auto}}
 </style>
 </head>
-<body data-motion="on" data-ledger-font="sans">
+<body data-motion="on" data-ledger-font="mono">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-ok" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4.5" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-warn" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4.5"/><path d="M8 3.5a4.5 4.5 0 0 0 0 9z" fill="currentColor" stroke="none"/></symbol>
@@ -356,6 +366,7 @@ details[open]>.sum .ico.chev{transform:rotate(90deg)}
   <symbol id="i-window" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 6h12"/></symbol>
   <symbol id="i-rule" viewBox="0 0 16 16"><path d="M4 2.5h8v11H4z"/><path d="M6 5.5h4M6 8h4M6 10.5h2"/></symbol>
   <symbol id="i-map" viewBox="0 0 16 16"><circle cx="8" cy="3.5" r="1.5"/><circle cx="3.5" cy="12.5" r="1.5"/><circle cx="12.5" cy="12.5" r="1.5"/><path d="M8 5v3M8 8L4 11M8 8l4 3"/></symbol>
+  <symbol id="i-split" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M9 3v10"/></symbol>
   <symbol id="i-ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke-dasharray="3 7" stroke-width="1.6"/><circle cx="20" cy="2" r="1.8" fill="currentColor" stroke="none"/></symbol>
 </svg>
 
@@ -369,6 +380,7 @@ details[open]>.sum .ico.chev{transform:rotate(90deg)}
     </button>
     <nav class="tabs" role="tablist" aria-label="Виды окна" id="tabs"></nav>
     <div class="drag" aria-hidden="true"></div>
+    <div class="beside" role="group" aria-label="Открыть рядом с разговором" id="beside"></div>
     <button class="pal-btn" id="palBtn" aria-haspopup="dialog"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>Команды <kbd>Ctrl K</kbd></button>
     <div class="winctl">
       <button aria-label="Свернуть"><svg class="ico" aria-hidden="true"><use href="#i-min"/></svg></button>
@@ -380,6 +392,7 @@ details[open]>.sum .ico.chev{transform:rotate(90deg)}
   <div class="law" id="law" role="status" aria-live="polite" aria-label="Строка закона и здоровья"></div>
 
   <main class="views" id="views">
+    <div class="side-head" id="sideHead"></div>
     <section class="view v-talk" id="v-talk" role="tabpanel" aria-label="Разговор">
       <div class="scroll" id="ledgerScroll"><div class="col"><ol class="ledger" id="ledger" aria-label="Лента"></ol></div></div>
       <div class="dock"><div class="col">
@@ -492,7 +505,7 @@ function scenario(name){
 }
 
 let S = scenario("ok");
-let UI = {view:"talk", sel:"hands", split:false, palette:false, palMode:"all", palIdx:0, extra:[]};
+let UI = {view:"talk", sel:"hands", side:null, lastSide:"sostav", palette:false, palMode:"all", palIdx:0, extra:[]};
 
 /* ---------- проблемы для строки закона и сводки ---------- */
 function issues(s){
@@ -885,28 +898,40 @@ function renderAside(){
 /* ---------- виды ---------- */
 const VIEWS = [["talk","Разговор","1"],["sostav","Состав","2"],["journal","Журнал","3"],["diff","Дифф","4"]];
 function renderTabs(){
-  $("#tabs").innerHTML = VIEWS.map(([id,l,k])=>`<button class="tab" role="tab" data-view="${id}" aria-selected="${UI.view===id || (UI.split && id==="sostav")}" title="${l} · Ctrl+${k}"><kbd>${k}</kbd>${l}${id==="diff"&&S.diffs?` <span class="badge" aria-label="ждут проверки">${S.diffs}</span>`:""}</button>`).join("");
+  $("#tabs").innerHTML = VIEWS.map(([id,l,k])=>`<button class="tab" role="tab" data-view="${id}" aria-selected="${UI.side ? id==="talk" : UI.view===id}" title="${l} · Ctrl+${k}"><kbd>${k}</kbd>${l}${id==="diff"&&S.diffs?` <span class="badge" aria-label="ждут проверки">${S.diffs}</span>`:""}</button>`).join("");
 }
 function renderViews(){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("is-on","is-left","is-right"));
   const views = $("#views");
-  if (UI.split){
+  if (UI.side){
     views.setAttribute("data-split","");
-    $("#v-talk").classList.add("is-on","is-left"); $("#v-sostav").classList.add("is-on","is-right");
+    $("#v-talk").classList.add("is-on","is-left"); $("#v-"+UI.side).classList.add("is-on","is-right");
+    const name = SIDES.find(x=>x[0]===UI.side)[2];
+    $("#sideHead").innerHTML = `<b>${name}</b><button class="btn btn-quiet" data-full="${UI.side}">На весь экран</button><button class="btn btn-quiet" data-side="${UI.side}" aria-label="Закрыть: ${name}">${ico("close")}</button>`;
   } else {
     views.removeAttribute("data-split");
     $("#v-"+UI.view).classList.add("is-on");
   }
-  renderTabs();
-  if (UI.split || UI.view==="sostav") requestAnimationFrame(drawEdges);
+  renderTabs(); renderBeside();
+  if (UI.side==="sostav" || (!UI.side && UI.view==="sostav")) requestAnimationFrame(drawEdges);
 }
-function setView(v){ UI.view=v; UI.split=false; renderViews(); syncHash(); }
+const SIDES = [["sostav","Состав","Состав и здоровье"],["journal","Журнал","Журнал сессий"],["diff","Дифф","Дифф на проверку"]];
+function renderBeside(){
+  $("#beside").innerHTML = `<span class="lbl">рядом</span>` + SIDES.map(([id,l])=>`<button data-side="${id}" aria-pressed="${UI.side===id}" title="${UI.side===id?"Закрыть":"Открыть рядом с разговором"}: ${l}">${ico("split")}${l}</button>`).join("");
+}
+function setView(v){ UI.view=v; UI.side=null; renderViews(); syncHash(); }
+function toggleSide(id){
+  if (!id) id = UI.side || UI.lastSide;
+  UI.side = UI.side===id ? null : id;
+  if (UI.side){ UI.lastSide = UI.side; UI.view = "talk"; }
+  renderViews(); syncHash();
+}
 
 /* ---------- палитра ---------- */
 function commands(){
   const c = [];
   VIEWS.forEach(([id,l,k])=>c.push({g:"Виды", l: id==="sostav"?"Состав и здоровье":id==="journal"?"Журнал сессий":id==="diff"?"Дифф на проверку":l, k:"Ctrl+"+k, run:()=>setView(id)}));
-  c.push({g:"Виды", l: UI.split?"Одно окно":"Разделить: разговор и состав", k:"Ctrl+\\", run:toggleSplit});
+  SIDES.forEach(([id,l,full])=>c.push({g:"Рядом с разговором", l:(UI.side===id?"Закрыть: ":"Открыть рядом: ")+full, k: id===UI.lastSide?"Ctrl+\\":"", run:()=>toggleSide(id)}));
   PROJECTS.forEach(p=>c.push({g:"Проект", l:p.id, sub:p.rule, k: p.id===S.project?"текущий":"", run:()=>{S.project=p.id; $("#projName").textContent=p.id; $("#projPath").textContent=p.path;}}));
   c.push({g:"Роли", l: S.hands.on?"Выключить руки":"Включить руки", run:()=>act("hands")});
   c.push({g:"Роли", l: S.brain.prov==="Grok"?"Мозг на Flash":"Мозг на Grok", run:()=>{S.brain.prov = S.brain.prov==="Grok"?"Flash":"Grok"; S.brain.st="ok"; renderAll();}});
@@ -956,20 +981,19 @@ function act(a){
   if (a==="stop"){ S.running=false; S.hands.busy=false; S.lock={holder:null}; UI.extra.push(T.note("14:42","info","работа снята вами — найм 3f9a1c2e остановлен, рот не тронут")); }
   renderAll();
 }
-function toggleSplit(){ UI.split=!UI.split; if(!UI.split) UI.view="talk"; renderViews(); syncHash(); }
 
 /* ---------- состояние в адресе (для снимков) ---------- */
 function syncHash(){
   const p = new URLSearchParams(); p.set("s",S.name); p.set("v",UI.view); p.set("sel",UI.sel);
-  if (UI.split) p.set("split","1");
+  if (UI.side) p.set("side",UI.side);
   history.replaceState(null,"","#"+p.toString());
 }
 function load(name){ S = scenario(name); UI.extra=[]; $("#field").value = S.draft; autosize(); renderAll(); syncHash(); }
 function fromHash(){
   const p = new URLSearchParams(location.hash.slice(1));
   S = scenario(p.get("s")||"ok"); UI.extra=[];
-  UI.view = p.get("v")||"talk"; UI.sel = p.get("sel")||"hands"; UI.split = p.get("split")==="1";
-  document.body.dataset.ledgerFont = p.get("f")==="mono" ? "mono" : "sans";
+  UI.view = p.get("v")||"talk"; UI.sel = p.get("sel")||"hands"; UI.side = p.get("side")||null;
+  document.body.dataset.ledgerFont = p.get("f")==="sans" ? "sans" : "mono";
   $("#field").value = S.draft; autosize();
   renderAll();
   if (p.get("palette")) openPalette(p.get("palette")==="project"?"project":"all");
@@ -979,10 +1003,12 @@ function renderAll(){ renderLaw(); renderLedger(); renderActivity(); renderRoute
 
 /* ---------- события ---------- */
 document.addEventListener("click", e=>{
-  const t = e.target.closest("[data-view],[data-go],[data-node],[data-act],[data-i]");
+  const t = e.target.closest("[data-view],[data-go],[data-node],[data-act],[data-i],[data-side],[data-full]");
   if (!t) return;
   if (t.dataset.view){ setView(t.dataset.view); return; }
-  if (t.dataset.go){ UI.sel=t.dataset.go; UI.view="sostav"; UI.split=false; renderSostav(); renderViews(); syncHash(); return; }
+  if (t.dataset.side){ toggleSide(t.dataset.side); return; }
+  if (t.dataset.full){ setView(t.dataset.full); return; }
+  if (t.dataset.go){ UI.sel=t.dataset.go; if (UI.side) UI.side="sostav"; else UI.view="sostav"; renderSostav(); renderViews(); syncHash(); return; }
   if (t.dataset.node){ UI.sel=t.dataset.node; renderSostav(); syncHash(); return; }
   if (t.dataset.i!==undefined){ runPalette(+t.dataset.i); return; }
   if (t.dataset.act!==undefined && t.dataset.act) act(t.dataset.act);
@@ -1014,7 +1040,7 @@ document.addEventListener("keydown", e=>{
   if (["1","2","3","4"].includes(k)){ e.preventDefault(); setView(VIEWS[+k-1][0]); }
   else if (k==="k"){ e.preventDefault(); UI.palette?closePalette():openPalette("all"); }
   else if (k==="p"||k==="з"){ e.preventDefault(); openPalette("project"); }
-  else if (k==="\\"){ e.preventDefault(); toggleSplit(); }
+  else if (k==="\\"){ e.preventDefault(); toggleSide(); }
 });
 window.addEventListener("resize", ()=>requestAnimationFrame(drawEdges));
 window.addEventListener("hashchange", fromHash);

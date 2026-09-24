@@ -28,7 +28,7 @@
     "hash": "#s=ok&v=talk&palette=1"
   },
   {
-    "name": "08a-2560-bez-razdeleniya",
+    "name": "08-2560-odno-okno",
     "hash": "#s=hire&v=talk",
     "sizes": [
       [
@@ -38,8 +38,8 @@
     ]
   },
   {
-    "name": "08-razdelenie-2560",
-    "hash": "#s=hire&v=talk&split=1&sel=hands",
+    "name": "09-2560-ryadom-sostav",
+    "hash": "#s=hire&v=talk&side=sostav&sel=hands",
     "sizes": [
       [
         2560,
@@ -48,7 +48,13 @@
     ]
   },
   {
-    "name": "09-lenta-mono",
-    "hash": "#s=ok&v=talk&f=mono"
+    "name": "10-ryadom-diff",
+    "hash": "#s=ok&v=talk&side=diff",
+    "sizes": [
+      [
+        1920,
+        1080
+      ]
+    ]
   }
 ]
