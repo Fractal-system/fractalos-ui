@@ -5,6 +5,7 @@
 //
 // Для каждой папки открывает index.html как file:// и снимает каждое состояние
 // из необязательного shots.json: [{ "name": "main" }, { "name": "health", "hash": "#health" }].
+// Состояние может задать свои размеры: { "name": "wide", "hash": "#split", "sizes": [[2560, 1440]] }.
 // Без shots.json — одно состояние "main". Результат: <папка>/shots/<name>-<W>x<H>.png.
 //
 // Сеть запрещена: любой запрос не к file:// обрывается и печатается — так
@@ -48,7 +49,9 @@ for (const dir of dirs) {
   const outDir = path.resolve(dir, 'shots');
   fs.mkdirSync(outDir, { recursive: true });
 
-  for (const [width, height] of SIZES) {
+  const sizes = [...SIZES, ...states.flatMap((s) => s.sizes || [])]
+    .filter(([w, h], i, all) => all.findIndex(([w2, h2]) => w2 === w && h2 === h) === i);
+  for (const [width, height] of sizes) {
     const context = await browser.newContext({
       viewport: { width, height },
       deviceScaleFactor: 1,
@@ -72,7 +75,10 @@ for (const dir of dirs) {
     page.on('pageerror', (err) => { console.error(`✖ ${dir} pageerror: ${err.message}`); problems++; });
 
     for (const state of states) {
+      const own = state.sizes || SIZES;
+      if (!own.some(([w, h]) => w === width && h === height)) continue;
       const url = pathToFileURL(index).href + (state.hash || '');
+      await page.goto('about:blank');
       await page.goto(url, { waitUntil: 'load' });
       await page.evaluate(() => document.fonts.ready);
       const file = path.join(outDir, `${state.name}-${width}x${height}.png`);
