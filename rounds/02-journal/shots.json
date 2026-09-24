@@ -1,0 +1,9 @@
+[
+  { "name": "01-zhurnal", "hash": "#s=ok&v=journal&j=cur" },
+  { "name": "02-zhurnal-sboi-i-povtor", "hash": "#s=ok&v=journal&j=s-parser" },
+  { "name": "03-zhurnal-zhdut-proverki", "hash": "#s=ok&v=journal&jf=wait&j=s-how" },
+  { "name": "04-zhurnal-idet-naim", "hash": "#s=grant&v=journal&j=cur" },
+  { "name": "05-zhurnal-poisk-pusto", "hash": "#s=ok&v=journal&q=kafka" },
+  { "name": "06-ryadom-zhurnal", "hash": "#s=ok&v=talk&side=journal&j=s-atlas" },
+  { "name": "07-2560-ryadom-zhurnal", "hash": "#s=hire&v=talk&side=journal&j=s-parser", "sizes": [[2560, 1440]] }
+]

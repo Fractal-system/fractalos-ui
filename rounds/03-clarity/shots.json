@@ -1,0 +1,12 @@
+[
+  { "name": "01-razgovor", "hash": "#s=ok&v=talk" },
+  { "name": "02-naim-idet", "hash": "#s=hire&v=talk" },
+  { "name": "03-grant", "hash": "#s=grant&v=talk" },
+  { "name": "04-ogovorki", "hash": "#s=degraded&v=talk" },
+  { "name": "05-sostav", "hash": "#s=ok&v=sostav&sel=hands" },
+  { "name": "06-zhurnal", "hash": "#s=ok&v=journal&j=cur" },
+  { "name": "07-zhurnal-sboi", "hash": "#s=ok&v=journal&j=s-parser" },
+  { "name": "08-podskazki-razgovor", "hash": "#s=ok&v=talk&help=1" },
+  { "name": "09-podskazki-zhurnal", "hash": "#s=ok&v=journal&j=s-parser&help=1" },
+  { "name": "10-2560-ryadom-zhurnal", "hash": "#s=hire&v=talk&side=journal&j=s-parser", "sizes": [[2560, 1440]] }
+]
