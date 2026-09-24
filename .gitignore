@@ -4,3 +4,6 @@ node_modules/
 # локальное (машинное) состояние скиллов
 .claude/settings.local.json
 .impeccable/config.local.json
+**/.impeccable/hook.cache.json
+.impeccable/live/
+.impeccable/history/
