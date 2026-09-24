@@ -1,2 +1,9 @@
 node_modules/
 .DS_Store
+
+# локальное (машинное) состояние скиллов
+.claude/settings.local.json
+.impeccable/config.local.json
+**/.impeccable/hook.cache.json
+.impeccable/live/
+.impeccable/history/
