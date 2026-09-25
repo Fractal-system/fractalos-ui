@@ -1,0 +1,15 @@
+[
+  { "name": "01-pusto", "hash": "#s=ok" },
+  { "name": "02-fokus", "hash": "#s=ok&c=focus" },
+  { "name": "03-mnogo-strok", "hash": "#s=ok&c=multi" },
+  { "name": "04-slesh-menyu", "hash": "#s=ok&c=slash" },
+  { "name": "05-mozg-ruki", "hash": "#s=ok&c=hire" },
+  { "name": "06-otkaz", "hash": "#s=degraded&c=focus" },
+  { "name": "07-zanyato-stop", "hash": "#s=busy" },
+  { "name": "08-zhdyot-razresheniya", "hash": "#s=grant" },
+  { "name": "09-povtorit-naym", "hash": "#s=retry" },
+  { "name": "10-ryadom", "hash": "#s=ok&c=focus&side=journal" },
+  { "name": "11-opcii", "hash": "#s=ok&c=opts" },
+  { "name": "12-plyus", "hash": "#s=ok&c=plus" },
+  { "name": "13-alt-proporcii", "hash": "#s=ok&c=focus&a=1", "sizes": [[1440, 900]] }
+]

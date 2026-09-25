@@ -1,0 +1,12 @@
+[
+  { "name": "01-diff", "hash": "#s=ok&v=diff&d=7c1e40b2" },
+  { "name": "02-diff-fail-prosmotren", "hash": "#s=ok&v=diff&d=7c1e40b2&dv=1" },
+  { "name": "03-diff-pishut-ruki", "hash": "#s=hire&v=diff&d=7c1e40b2" },
+  { "name": "04-otklonit", "hash": "#s=ok&v=diff&d=7c1e40b2&rej=1" },
+  { "name": "05-primeneno", "hash": "#s=ok&v=diff&d=7c1e40b2&done=apply" },
+  { "name": "06-razgovor-posle", "hash": "#s=ok&v=talk&d=7c1e40b2&done=apply" },
+  { "name": "07-otklonyon-ranshe", "hash": "#s=ok&v=diff&d=6e04c2d1" },
+  { "name": "08-ryadom", "hash": "#s=ok&v=talk&side=diff&d=7c1e40b2" },
+  { "name": "09-podskazki", "hash": "#s=ok&v=diff&d=7c1e40b2&help=1" },
+  { "name": "10-2560-ryadom-diff", "hash": "#s=ok&v=talk&side=diff&d=7c1e40b2", "sizes": [[2560, 1440]] }
+]
